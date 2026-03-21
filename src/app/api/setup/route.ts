@@ -163,8 +163,4 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }
-```
 
-Guarda, espera el deploy verde, y luego abre en el navegador:
-```
-https://polla-0lgv.onrender.com/api/setup
