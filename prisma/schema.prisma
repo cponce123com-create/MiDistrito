@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  PARTICIPANT
+}
+
+enum Status {
+  ACTIVE
+  BLOCKED
+}
+
+enum TournamentStatus {
+  DRAFT
+  ACTIVE
+  FINISHED
+}
+
+enum PhaseType {
+  GROUPS
+  OCTAVOS
+  CUARTOS
+  SEMIFINAL
+  FINAL
+}
+
+enum MatchStatus {
+  PROGRAMMED
+  IN_PLAY
+  FINISHED
+  CLOSED
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  phone         String?
+  role          Role      @default(PARTICIPANT)
+  status        Status    @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  participants  Participant[]
+}
+
+model Tournament {
+  id                    String            @id @default(cuid())
+  name                  String
+  description           String?
+  type                  String
+  year                  Int
+  status                TournamentStatus  @default(DRAFT)
+  entryFee              Float             @default(5.0)
+  prizeFirstPct         Float             @default(60.0)
+  prizeSecondPct        Float             @default(30.0)
+  prizeCharityPct       Float             @default(10.0)
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  phases                Phase[]
+  matches               Match[]
+  participants          Participant[]
+}
+
+model Phase {
+  id            String    @id @default(cuid())
+  tournamentId  String
+  tournament    Tournament @relation(fields: [tournamentId], references: [id])
+  name          String
+  order         Int
+  type          PhaseType
+  active        Boolean   @default(true)
+  matches       Match[]
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String
+  shortName   String?
+  flagUrl     String?
+  country     String?
+  createdAt   DateTime  @default(now())
+  matchesLocal    Match[] @relation("LocalTeam")
+  matchesVisitor  Match[] @relation("VisitorTeam")
+}
+
+model Match {
+  id                String      @id @default(cuid())
+  tournamentId      String
+  tournament        Tournament  @relation(fields: [tournamentId], references: [id])
+  phaseId           String
+  phase             Phase       @relation(fields: [phaseId], references: [id])
+  localTeamId       String
+  localTeam         Team        @relation("LocalTeam", fields: [localTeamId], references: [id])
+  visitorTeamId     String
+  visitorTeam       Team        @relation("VisitorTeam", fields: [visitorTeamId], references: [id])
+  dateTime          DateTime
+  stadium           String?
+  group             String?
+  status            MatchStatus @default(PROGRAMMED)
+  localGoals        Int?
+  visitorGoals      Int?
+  lockTime          DateTime
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  predictions       Prediction[]
+}
+
+model Participant {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  tournamentId    String
+  tournament      Tournament  @relation(fields: [tournamentId], references: [id])
+  code            String?     @unique
+  paymentStatus   PaymentStatus @default(PENDING)
+  amountPaid      Float?
+  paymentDate     DateTime?
+  totalPoints     Int         @default(0)
+  rank            Int?
+  createdAt       DateTime    @default(now())
+  predictions     Prediction[]
+  payments        Payment[]
+  snapshots       StandingsSnapshot[]
+  pdfExports      PdfExport[]
+}
+
+model Prediction {
+  id              String      @id @default(cuid())
+  participantId   String
+  participant     Participant @relation(fields: [participantId], references: [id])
+  matchId         String
+  match           Match       @relation(fields: [matchId], references: [id])
+  localPred       Int
+  visitorPred     Int
+  points          Int         @default(0)
+  correctWinner   Boolean?
+  correctScore    Boolean?
+  locked          Boolean     @default(false)
+  submittedAt     DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Payment {
+  id              String      @id @default(cuid())
+  participantId   String
+  participant     Participant @relation(fields: [participantId], references: [id])
+  amount          Float
+  method          String?
+  reference       String?
+  status          PaymentStatus @default(PENDING)
+  validatedByAdmin Boolean    @default(false)
+  paymentDate     DateTime    @default(now())
+  createdAt       DateTime    @default(now())
+}
+
+model StandingsSnapshot {
+  id              String      @id @default(cuid())
+  tournamentId    String
+  participantId   String
+  participant     Participant @relation(fields: [participantId], references: [id])
+  points          Int
+  rank            Int
+  snapshotDate    DateTime    @default(now())
+}
+
+model PdfExport {
+  id              String      @id @default(cuid())
+  participantId   String
+  participant     Participant @relation(fields: [participantId], references: [id])
+  tournamentId    String
+  fileUrl         String
+  generationDate  DateTime    @default(now())
+}

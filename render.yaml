@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: polla-deportiva
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromConfig:
+          ref: DATABASE_URL
+      - key: NEXTAUTH_URL
+        fromConfig:
+          ref: NEXTAUTH_URL
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production
