@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Trophy, Calendar, Target, Award, Download } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
