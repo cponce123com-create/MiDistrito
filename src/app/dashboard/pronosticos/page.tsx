@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { PredictionForm } from "@/components/PredictionForm";
 
+export const dynamic = 'force-dynamic';
 export default async function PronosticosPage() {
   const session = await getServerSession(authOptions);
 
