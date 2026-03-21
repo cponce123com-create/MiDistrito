@@ -17,3 +17,5 @@ services:
         generateValue: true
       - key: NODE_ENV
         value: production
+      - key: PRISMA_CLIENT_ENGINE_TYPE
+        value: library
