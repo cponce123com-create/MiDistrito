@@ -28,29 +28,38 @@ export async function POST(req: Request) {
 
       if (!match) continue;
 
-      // Check if match is locked
       if (new Date() > new Date(match.lockTime)) {
         continue;
       }
 
-      const prediction = await prisma.prediction.upsert({
+      // Buscar si ya existe el pronóstico para este participante y partido
+      const existing = await prisma.prediction.findFirst({
         where: {
-          id: `${participant.id}_${matchId}`, // Using a compound key logic if needed
-          // Actually, let's use matchId and participantId unique constraint
-        },
-        update: {
-          localPred: scores.local,
-          visitorPred: scores.visitor,
-          submittedAt: new Date(),
-        },
-        create: {
-          id: `${participant.id}_${matchId}`,
           participantId: participant.id,
           matchId: matchId,
-          localPred: scores.local,
-          visitorPred: scores.visitor,
         },
       });
+
+      let prediction;
+      if (existing) {
+        prediction = await prisma.prediction.update({
+          where: { id: existing.id },
+          data: {
+            localPred: scores.local,
+            visitorPred: scores.visitor,
+            updatedAt: new Date(),
+          },
+        });
+      } else {
+        prediction = await prisma.prediction.create({
+          data: {
+            participantId: participant.id,
+            matchId: matchId,
+            localPred: scores.local,
+            visitorPred: scores.visitor,
+          },
+        });
+      }
       updates.push(prediction);
     }
 
