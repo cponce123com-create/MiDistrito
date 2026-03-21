@@ -20,11 +20,14 @@ export async function GET(req: Request) {
         "role" TEXT NOT NULL DEFAULT 'PARTICIPANT',
         "status" TEXT NOT NULL DEFAULT 'ACTIVE',
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "User_pkey" PRIMARY KEY ("id")
       );
-      CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
+    `);
 
+    await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");`);
+
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Tournament" (
         "id" TEXT NOT NULL,
         "name" TEXT NOT NULL,
@@ -37,10 +40,12 @@ export async function GET(req: Request) {
         "prizeSecondPct" DOUBLE PRECISION NOT NULL DEFAULT 30.0,
         "prizeCharityPct" DOUBLE PRECISION NOT NULL DEFAULT 10.0,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Tournament_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Phase" (
         "id" TEXT NOT NULL,
         "tournamentId" TEXT NOT NULL,
@@ -50,7 +55,9 @@ export async function GET(req: Request) {
         "active" BOOLEAN NOT NULL DEFAULT true,
         CONSTRAINT "Phase_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Team" (
         "id" TEXT NOT NULL,
         "name" TEXT NOT NULL,
@@ -60,7 +67,9 @@ export async function GET(req: Request) {
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Team_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Match" (
         "id" TEXT NOT NULL,
         "tournamentId" TEXT NOT NULL,
@@ -75,10 +84,12 @@ export async function GET(req: Request) {
         "visitorGoals" INTEGER,
         "lockTime" TIMESTAMP(3) NOT NULL,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Match_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Participant" (
         "id" TEXT NOT NULL,
         "userId" TEXT NOT NULL,
@@ -92,8 +103,11 @@ export async function GET(req: Request) {
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Participant_pkey" PRIMARY KEY ("id")
       );
-      CREATE UNIQUE INDEX IF NOT EXISTS "Participant_code_key" ON "Participant"("code");
+    `);
 
+    await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "Participant_code_key" ON "Participant"("code");`);
+
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Prediction" (
         "id" TEXT NOT NULL,
         "participantId" TEXT NOT NULL,
@@ -108,7 +122,9 @@ export async function GET(req: Request) {
         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Prediction_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Payment" (
         "id" TEXT NOT NULL,
         "participantId" TEXT NOT NULL,
@@ -121,7 +137,9 @@ export async function GET(req: Request) {
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "StandingsSnapshot" (
         "id" TEXT NOT NULL,
         "tournamentId" TEXT NOT NULL,
@@ -131,7 +149,9 @@ export async function GET(req: Request) {
         "snapshotDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "StandingsSnapshot_pkey" PRIMARY KEY ("id")
       );
+    `);
 
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "PdfExport" (
         "id" TEXT NOT NULL,
         "participantId" TEXT NOT NULL,
@@ -148,10 +168,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }
-```
-
----
-
-**Después de que el deploy pase, llamas este endpoint UNA SOLA VEZ desde el navegador:**
-```
-https://tu-app.onrender.com/api/setup
