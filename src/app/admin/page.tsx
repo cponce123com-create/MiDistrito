@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Users, Trophy, DollarSign, Settings, Plus, Calendar, Download } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
 
