@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Trophy, Target, ShieldCheck, Download, Calendar } from "lucide-react";
 import { PdfButton } from "@/components/PdfButton";
 
+export const dynamic = 'force-dynamic';
 export default async function ParticipantProfilePage({ params }: { params: { id: string } }) {
   const { id } = params;
 
