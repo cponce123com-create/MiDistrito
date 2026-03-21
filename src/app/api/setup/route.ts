@@ -3,12 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.NEXTAUTH_SECRET}`) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
+export async function GET() {
   try {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "User" (
@@ -168,3 +163,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }
+```
+
+Guarda, espera el deploy verde, y luego abre en el navegador:
+```
+https://polla-0lgv.onrender.com/api/setup
