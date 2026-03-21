@@ -1,11 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { Trophy, Medal } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { Trophy, Medal } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
-export default async function RankingPage() {
 export default async function RankingPage() {
   const participants = await prisma.participant.findMany({
     where: { tournament: { status: "ACTIVE" } },
@@ -41,13 +38,12 @@ export default async function RankingPage() {
                 <th className="px-6 py-4 font-bold text-gray-900">Participante</th>
                 <th className="px-6 py-4 font-bold text-gray-900 text-center">Puntos</th>
                 <th className="px-6 py-4 font-bold text-gray-900 text-center hidden md:table-cell">Aciertos Exactos</th>
-                <th className="px-6 py-4 font-bold text-gray-900 text-right">Detalle</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {participants.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500 italic">
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">
                     Aún no hay participantes en el ranking.
                   </td>
                 </tr>
@@ -57,9 +53,9 @@ export default async function RankingPage() {
                     <td className="px-6 py-4">
                       {index + 1 <= 3 ? (
                         <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold ${
-                          index === 0 ? "bg-yellow-400 text-white shadow-sm" :
-                          index === 1 ? "bg-gray-300 text-white shadow-sm" :
-                          "bg-amber-600 text-white shadow-sm"
+                          index === 0 ? "bg-yellow-400 text-white" :
+                          index === 1 ? "bg-gray-300 text-white" :
+                          "bg-amber-600 text-white"
                         }`}>
                           {index + 1}
                         </div>
@@ -77,11 +73,6 @@ export default async function RankingPage() {
                       <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
                         {p._count.predictions}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        Ver Jugadas
-                      </button>
                     </td>
                   </tr>
                 ))
