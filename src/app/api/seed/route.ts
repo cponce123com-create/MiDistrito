@@ -8,19 +8,28 @@ export async function GET() {
   try {
     const passwordHash = await bcrypt.hash("admin123", 10);
 
-    await prisma.user.upsert({
-      where: { email: "admin@polla.com" },
-      update: {},
-      create: {
-        email: "admin@polla.com",
-        name: "Administrador",
-        passwordHash,
-        role: "ADMIN",
-      },
-    });
+    await prisma.$executeRawUnsafe(`
+      INSERT INTO "User" ("id", "name", "email", "passwordHash", "role", "status", "createdAt", "updatedAt")
+      VALUES (
+        'admin-001',
+        'Administrador',
+        'admin@polla.com',
+        '${passwordHash}',
+        'ADMIN',
+        'ACTIVE',
+        NOW(),
+        NOW()
+      )
+      ON CONFLICT ("email") DO NOTHING;
+    `);
 
     return NextResponse.json({ ok: true, message: "Admin creado. Email: admin@polla.com / Pass: admin123" });
   } catch (error) {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }
+```
+
+Guarda, espera deploy verde, y vuelve a abrir:
+```
+https://polla-0lgv.onrender.com/api/seed
