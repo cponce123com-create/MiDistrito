@@ -24,8 +24,3 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
   }
 }
-```
-
-Espera el deploy y luego abre en el navegador:
-```
-https://polla-0lgv.onrender.com/api/seed
