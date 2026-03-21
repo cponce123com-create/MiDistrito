@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Users, Trophy, DollarSign, Settings, Plus, Calendar } from "lucide-react";
+import { Users, Trophy, DollarSign, Settings, Plus, Calendar, Download } from "lucide-react";
 import Link from "next/link";
 
 export default async function AdminDashboardPage() {
