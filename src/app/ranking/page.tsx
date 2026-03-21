@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { Trophy, Medal } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { Trophy, Medal } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
+export default async function RankingPage() {
 export default async function RankingPage() {
   const participants = await prisma.participant.findMany({
     where: { tournament: { status: "ACTIVE" } },
