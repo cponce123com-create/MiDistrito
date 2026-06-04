@@ -17,6 +17,7 @@ export default function AdminParticipantesPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedCaptureUrl, setSelectedCaptureUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchParticipants();
@@ -145,13 +146,24 @@ export default function AdminParticipantesPage() {
                             <Check className="h-4 w-4" />
                           </button>
                           {p.paymentStatus === "PENDING" && (
-                            <button
-                              onClick={() => handlePaymentStatus(p.id, "REJECTED")}
-                              className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                              title="Rechazar pago"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
+                            <>
+                              {p.payments?.[0]?.captureUrl && (
+                                <button
+                                  onClick={() => setSelectedCaptureUrl(p.payments[0].captureUrl!)}
+                                  className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                                  title="Ver captura de pago"
+                                >
+                                  <span className="text-xs font-bold">📷</span>
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handlePaymentStatus(p.id, "REJECTED")}
+                                className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                                title="Rechazar pago"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </>
                           )}
                         </div>
                       )}
@@ -166,6 +178,15 @@ export default function AdminParticipantesPage() {
           </table>
         </div>
       </div>
+    </div>
+  );
+}
+ura de comprobante de pago"
+              className="w-full h-auto rounded-xl shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

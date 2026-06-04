@@ -29,6 +29,20 @@ export default function Home() {
               <ExternalLink className="h-5 w-5" />
             </Link>
           </div>
+          {tournament && (
+            <div className="mt-10 w-full max-w-3xl space-y-4">
+              {tournament.matches[0] && (
+                <Countdown targetDate={tournament.matches[0].dateTime.toISOString()} />
+              )}
+              <PrizeBoard
+                entryFee={tournament.entryFee}
+                totalTickets={tournament._count.participants}
+                prizeFirstPct={tournament.prizeFirstPct}
+                prizeSecondPct={tournament.prizeSecondPct}
+                prizeThirdPct={tournament.prizeCharityPct}
+              />
+            </div>
+          )}
         </div>
       </section>
 

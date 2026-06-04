@@ -1,32 +1,67 @@
-import { prisma } from "@/lib/prisma";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Trophy } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
+interface RankingParticipant {
+  id: string;
+  user: { name: string };
+  totalPoints: number;
+  rank: number | null;
+  _count: { predictions: number };
+}
 
-export default async function RankingPage() {
-  const participants = await prisma.participant.findMany({
-    where: { tournament: { status: "ACTIVE" }, paymentStatus: "APPROVED" },
-    include: {
-      user: { select: { name: true } },
-      _count: {
-        select: {
-          predictions: {
-            where: { correctScore: true },
-          },
-        },
-      },
-    },
-    orderBy: [{ totalPoints: "desc" }, { rank: "asc" }],
-  });
+export default function RankingPage() {
+  const router = useRouter();
+  const [participants, setParticipants] = useState<RankingParticipant[]>([]);
+  const [hasLiveMatches, setHasLiveMatches] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRanking = async () => {
+    try {
+      const res = await fetch("/api/ranking");
+      if (res.ok) {
+        const data = await res.json();
+        setParticipants(data.participants);
+        setHasLiveMatches(data.hasLiveMatches);
+      }
+    } catch (err) {
+      console.error("Error fetching ranking:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRanking();
+    const interval = setInterval(() => {
+      fetchRanking();
+      router.refresh();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <div className="bg-yellow-100 p-4 rounded-full w-fit mx-auto mb-6">
+        <div className="bg-yellow-100 p-4 rounded-full w-fit mx-auto mb-6 relative">
           <Trophy className="h-12 w-12 text-yellow-600" />
+          {hasLiveMatches && (
+            <span className="absolute -top-1 -right-1 flex items-center space-x-1 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              <span>En vivo</span>
+            </span>
+          )}
         </div>
         <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Ranking General</h1>
         <p className="text-gray-600">Sigue la tabla de posiciones en vivo.</p>
+        {hasLiveMatches && (
+          <p className="text-sm text-green-600 font-medium mt-2 flex items-center justify-center space-x-1">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block" />
+            <span>● Actualizando cada 30s — Hay partidos en juego</span>
+          </p>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -41,7 +76,13 @@ export default async function RankingPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {participants.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                    Cargando ranking...
+                  </td>
+                </tr>
+              ) : participants.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">
                     Aún no hay participantes en el ranking.

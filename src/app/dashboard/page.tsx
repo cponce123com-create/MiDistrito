@@ -125,10 +125,14 @@ export default async function DashboardPage() {
                   <span className="text-sm font-medium">Editar Pronósticos</span>
                   <Target className="h-4 w-4 text-gray-400" />
                 </Link>
-                <button className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
+                <a
+                  href={`/api/predictions/export?participantId=${activeParticipant.id}`}
+                  target="_blank"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+                >
                   <span className="text-sm font-medium">Descargar PDF de Jugadas</span>
                   <Download className="h-4 w-4 text-gray-400" />
-                </button>
+                </a>
                 <Link
                   href="/ranking"
                   className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
