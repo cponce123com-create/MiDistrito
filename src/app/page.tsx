@@ -1,7 +1,20 @@
 import Link from "next/link";
 import { Trophy, Users, ShieldCheck, Download, ExternalLink } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import Countdown from "@/components/Countdown";
+import PrizeBoard from "@/components/PrizeBoard";
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const tournament = await prisma.tournament.findFirst({
+    where: { status: "ACTIVE" },
+    include: {
+      matches: { orderBy: { dateTime: "asc" }, take: 1 },
+      _count: { select: { participants: true } },
+    },
+  });
+
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section */}
@@ -72,7 +85,6 @@ export default function Home() {
           <div className="bg-purple-50 p-4 rounded-full mb-6">
             <Download className="h-8 w-8 text-purple-600" />
           </div>
-          <h3 className="text-xl font-bold mb-3">Respaldo PDF</h3>
           <h3 className="text-xl font-bold mb-3">Respaldo PDF</h3>
           <p className="text-gray-600">
             Descarga tus pronósticos en PDF para tener tu propio comprobante de jugada.
