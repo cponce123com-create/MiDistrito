@@ -1,119 +1,74 @@
 "use client";
 
-import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
 import { Trophy, User, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export const Navbar = () => {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = (session?.user as any)?.role === "admin";
 
   return (
-    <nav className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <Trophy className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Polla Mundial 2026</span>
-            </Link>
-          </div>
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <Trophy className="h-7 w-7 text-yellow-500" />
+          <span className="text-lg font-bold">Polla 2026</span>
+        </Link>
 
-          {/* Desktop menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link href="/ranking" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-              Ranking
-            </Link>
-            <Link href="/pronosticos-publicos" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-              Transparencia
-            </Link>
-            <Link href="/reglas" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-              Reglas
-            </Link>
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-4">
+          <Link href="/ranking" className="text-sm text-gray-600 hover:text-blue-600">Ranking</Link>
+          <Link href="/partidos" className="text-sm text-gray-600 hover:text-blue-600">Partidos</Link>
+          <Link href="/reglas" className="text-sm text-gray-600 hover:text-blue-600">Reglas</Link>
 
-            {session ? (
-              <>
-                <Link href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                  Mi Panel
-                </Link>
-                {isAdmin && (
-                  <Link href="/admin" className="text-red-600 font-semibold px-3 py-2 rounded-md text-sm">
-                    Admin
-                  </Link>
-                )}
-                <button
-                  onClick={() => signOut()}
-                  className="text-gray-500 hover:text-gray-700 p-2"
-                  title="Cerrar Sesión"
-                >
-                  <LogOut className="h-5 w-5" />
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                  Entrar
-                </Link>
-                <Link href="/registro" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                  Participar
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-500 hover:text-gray-700 p-2"
-            >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-2 pt-2 pb-3 space-y-1">
-          <Link href="/ranking" className="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">
-            Ranking
-          </Link>
-          <Link href="/pronosticos-publicos" className="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">
-            Transparencia
-          </Link>
-          <Link href="/reglas" className="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">
-            Reglas
-          </Link>
           {session ? (
             <>
-              <Link href="/dashboard" className="block bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium">
+              {isAdmin && (
+                <Link href="/admin" className="text-sm text-red-600 font-semibold hover:text-red-700">Admin</Link>
+              )}
+              <Link href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
                 Mi Panel
               </Link>
-              {isAdmin && (
-                <Link href="/admin" className="block text-red-600 px-3 py-2 rounded-md text-base font-medium">
-                  Admin
-                </Link>
-              )}
-              <button
-                onClick={() => signOut()}
-                className="w-full text-left text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium flex items-center space-x-2"
-              >
+              <Link href="/pronosticos" className="text-sm text-gray-600 hover:text-blue-600">Pronosticar</Link>
+              <button onClick={() => signOut()} className="p-2 text-gray-400 hover:text-gray-600">
                 <LogOut className="h-5 w-5" />
-                <span>Cerrar Sesión</span>
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="block text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium">
-                Entrar
-              </Link>
-              <Link href="/registro" className="block bg-blue-600 text-white px-3 py-2 rounded-md text-base font-medium">
+              <Link href="/login" className="text-sm text-gray-600 hover:text-blue-600">Entrar</Link>
+              <Link href="/registro" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
                 Participar
               </Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile */}
+        <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="md:hidden border-t bg-white p-4 space-y-2">
+          <Link href="/ranking" className="block py-2 text-sm" onClick={() => setIsOpen(false)}>Ranking</Link>
+          <Link href="/partidos" className="block py-2 text-sm" onClick={() => setIsOpen(false)}>Partidos</Link>
+          <Link href="/reglas" className="block py-2 text-sm" onClick={() => setIsOpen(false)}>Reglas</Link>
+          {session ? (
+            <>
+              <Link href="/dashboard" className="block py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Mi Panel</Link>
+              <Link href="/pronosticos" className="block py-2 text-sm" onClick={() => setIsOpen(false)}>Pronosticar</Link>
+              {isAdmin && <Link href="/admin" className="block py-2 text-sm text-red-600" onClick={() => setIsOpen(false)}>Admin</Link>}
+              <button onClick={() => { signOut(); setIsOpen(false); }} className="block py-2 text-sm text-gray-500">Cerrar Sesión</button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="block py-2 text-sm" onClick={() => setIsOpen(false)}>Entrar</Link>
+              <Link href="/registro" className="block py-2 text-sm font-medium text-blue-600" onClick={() => setIsOpen(false)}>Participar</Link>
             </>
           )}
         </div>

@@ -1,99 +1,70 @@
-import { Trophy, Target, ShieldCheck, DollarSign, Users } from "lucide-react";
+import { Trophy, Target, CheckCircle2, XCircle } from "lucide-react";
 
 export default function ReglasPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Reglas del Juego</h1>
-        <p className="text-lg text-gray-600">Todo lo que necesitas saber para participar y ganar.</p>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-2">Reglas del Juego</h1>
+      <p className="text-gray-500 mb-8">Sistema de puntuación de la Polla Mundial 2026</p>
+
+      <div className="bg-white rounded-xl shadow-md border p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Target className="h-6 w-6 text-blue-500" /> Sistema de Puntos
+        </h2>
+        <div className="space-y-4">
+          <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg">
+            <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-green-800">Resultado Exacto — 3 puntos</h3>
+              <p className="text-sm text-green-700">Aciertas el marcador exacto del partido. Ej: Pronosticas 2-1 y el resultado es 2-1.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-lg">
+            <CheckCircle2 className="h-6 w-6 text-blue-600 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-blue-800">Diferencia Correcta — 2 puntos</h3>
+              <p className="text-sm text-blue-700">Aciertas la diferencia de goles pero no el marcador exacto. Ej: Pronosticas 3-1 y el resultado es 2-0 (ambos tienen diferencia de 2).</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 p-4 bg-yellow-50 rounded-lg">
+            <CheckCircle2 className="h-6 w-6 text-yellow-600 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-yellow-800">Ganador Correcto — 1 punto</h3>
+              <p className="text-sm text-yellow-700">Aciertas qué equipo gana o si es empate, pero no la diferencia. Ej: Pronosticas 2-0 y el resultado es 1-0.</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4 p-4 bg-red-50 rounded-lg">
+            <XCircle className="h-6 w-6 text-red-600 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-red-800">Sin Puntos — 0 puntos</h3>
+              <p className="text-sm text-red-700">No aciertas ni el ganador ni la diferencia.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-12">
-        <section>
-          <div className="flex items-center space-x-3 mb-4">
-            <Target className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold">Sistema de Puntuación</h2>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <ul className="space-y-4">
-              <li className="flex justify-between items-center pb-4 border-b border-gray-50">
-                <div>
-                  <p className="font-bold text-gray-900">Resultado Exacto</p>
-                  <p className="text-sm text-gray-500">Aciertas el marcador exacto de ambos equipos.</p>
-                </div>
-                <span className="bg-blue-100 text-blue-700 font-extrabold px-4 py-2 rounded-lg text-xl">5 pts</span>
-              </li>
-              <li className="flex justify-between items-center pb-4 border-b border-gray-50">
-                <div>
-                  <p className="font-bold text-gray-900">Ganador o Empate</p>
-                  <p className="text-sm text-gray-500">Aciertas quién gana o si hay empate, pero no el marcador exacto.</p>
-                </div>
-                <span className="bg-blue-100 text-blue-700 font-extrabold px-4 py-2 rounded-lg text-xl">3 pts</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <div>
-                  <p className="font-bold text-gray-900">Sin Acierto</p>
-                  <p className="text-sm text-gray-500">No aciertas ni el ganador ni el marcador.</p>
-                </div>
-                <span className="bg-gray-100 text-gray-500 font-extrabold px-4 py-2 rounded-lg text-xl">0 pts</span>
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        <section>
-          <div className="flex items-center space-x-3 mb-4">
-            <DollarSign className="h-6 w-6 text-green-600" />
-            <h2 className="text-2xl font-bold">Distribución del Pozo</h2>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <p className="text-sm text-yellow-700 font-medium">1er Puesto</p>
-              <p className="text-3xl font-extrabold text-yellow-800">60%</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-700 font-medium">2do Puesto</p>
-              <p className="text-3xl font-extrabold text-gray-800">30%</p>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-sm text-green-700 font-medium">Acción Benéfica</p>
-              <p className="text-3xl font-extrabold text-green-800">10%</p>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <div className="flex items-center space-x-3 mb-4">
-            <ShieldCheck className="h-6 w-6 text-purple-600" />
-            <h2 className="text-2xl font-bold">Transparencia y Cierres</h2>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <div className="flex items-start space-x-3">
-              <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">!</span>
-              </div>
-              <p className="text-gray-600">
-                Los pronósticos se cierran automáticamente <span className="font-bold text-gray-900">1 hora antes</span> del inicio de cada partido.
-              </p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">!</span>
-              </div>
-              <p className="text-gray-600">
-                Una vez cerrado un partido, las jugadas de todos los participantes se vuelven <span className="font-bold text-gray-900">públicas</span> en el portal de transparencia.
-              </p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-600">!</span>
-              </div>
-              <p className="text-gray-600">
-                En caso de empate en el ranking final, el criterio de desempate será: 1) Más marcadores exactos acertados, 2) Fecha de registro más temprana.
-              </p>
-            </div>
-          </div>
-        </section>
+      <div className="bg-white rounded-xl shadow-md border p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4">Reglas Generales</h2>
+        <ul className="space-y-3 text-gray-700">
+          <li className="flex gap-2">
+            <span className="text-blue-600 font-bold">•</span>
+            Los pronósticos se cierran <strong>5 minutos antes</strong> del inicio de cada partido.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-blue-600 font-bold">•</span>
+            Puedes modificar tus pronósticos en cualquier momento antes del cierre.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-blue-600 font-bold">•</span>
+            Los puntos se calculan automáticamente cuando el administrador ingresa el resultado real.
+          </li>
+          <li className="flex gap-2">
+            <span className="text-blue-600 font-bold">•</span>
+            El ranking se actualiza en tiempo real después de cada partido.
+          </li>
+        </ul>
       </div>
     </div>
   );

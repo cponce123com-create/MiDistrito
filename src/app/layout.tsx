@@ -1,42 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Navbar } from "@/components/Navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Polla Mundial 2026 - Quiniela del Mundial 2026",
-  description: "Plataforma de quinielas deportivas del Mundial 2026 para competir con tus amigos.",
+  title: "Polla Mundial 2026",
+  description: "Quiniela del Mundial 2026 - Pronostica y gana",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-gray-50">
+    <html lang="es">
+      <body className="min-h-screen flex flex-col bg-gray-50 text-gray-900 antialiased">
         <AuthProvider>
           <Navbar />
-          <main className="flex-grow">{children}</main>
-          <footer className="bg-white border-t border-gray-200 py-6 mt-12">
-            <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-              &copy; {new Date().getFullYear()} Polla Deportiva. Todos los derechos reservados.
-            </div>
+          <main className="flex-1">{children}</main>
+          <footer className="bg-white border-t py-6 text-center text-sm text-gray-500">
+            © {new Date().getFullYear()} Polla Mundial 2026
           </footer>
         </AuthProvider>
       </body>

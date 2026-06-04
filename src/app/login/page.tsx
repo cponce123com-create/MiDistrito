@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Trophy, AlertCircle } from "lucide-react";
+import { Trophy, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -19,19 +19,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
+      const res = await signIn("credentials", { email, password, redirect: false });
       if (res?.error) {
         setError("Email o contraseña incorrectos");
       } else {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError("Ocurrió un error inesperado");
     } finally {
       setLoading(false);
@@ -39,74 +34,57 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
-        <div className="flex flex-col items-center">
-          <div className="bg-blue-100 p-3 rounded-full mb-4">
-            <Trophy className="h-10 w-10 text-blue-600" />
-          </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Iniciar Sesión</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Bienvenido de nuevo a la Polla Deportiva
-          </p>
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-lg border">
+        <div className="text-center">
+          <Trophy className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+          <h1 className="text-2xl font-bold">Iniciar Sesión</h1>
+          <p className="text-gray-500 mt-1">Bienvenido de nuevo</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 flex items-center space-x-3">
-              <AlertCircle className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Correo electrónico
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Contraseña
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 text-red-700 text-sm">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error}
           </div>
+        )}
 
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              placeholder="tu@email.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Contraseña</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+            className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? "Cargando..." : "Entrar"}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {loading ? "Ingresando..." : "Entrar"}
           </button>
         </form>
 
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
-            ¿No tienes cuenta?{" "}
-            <Link href="/registro" className="font-medium text-blue-600 hover:text-blue-500">
-              Regístrate aquí
-            </Link>
-          </p>
-        </div>
+        <p className="text-center text-sm text-gray-500">
+          ¿No tienes cuenta?{" "}
+          <Link href="/registro" className="text-blue-600 font-medium hover:underline">Regístrate</Link>
+        </p>
       </div>
     </div>
   );

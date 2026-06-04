@@ -1,171 +1,73 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/db";
+import { sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { Users, Trophy, DollarSign, Settings, Plus, Calendar, Download } from "lucide-react";
 import Link from "next/link";
+import { Users, Trophy, Calendar, Settings, Plus } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
-export default async function AdminDashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminPage() {
   const session = await auth();
+  if (!session || (session.user as any)?.role !== "admin") redirect("/login");
 
-  if (!session || (session.user as any).role !== "ADMIN") {
-    redirect("/dashboard");
-  }
-
-  const tournaments = await prisma.tournament.findMany({
-    include: {
-      _count: {
-        select: { participants: true, matches: true },
-      },
-    },
-  });
-
-  const totalParticipants = tournaments.reduce((acc, t) => acc + t._count.participants, 0);
-  const totalPool = tournaments.reduce((acc, t) => acc + (t._count.participants * t.entryFee), 0);
+  const statsResult = await db.execute(sql`
+    SELECT 
+      (SELECT COUNT(*) FROM users) as total_users,
+      (SELECT COUNT(*) FROM matches WHERE status = 'upcoming') as upcoming_matches,
+      (SELECT COUNT(*) FROM matches WHERE status = 'finished') as finished_matches,
+      (SELECT COUNT(*) FROM teams) as total_teams
+  `);
+  const s = (statsResult.rows?.[0] || {}) as any;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
-          <p className="text-gray-600">Gestiona torneos, partidos y participantes.</p>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Panel de Administración</h1>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <Users className="h-6 w-6 text-blue-500 mb-2" />
+          <p className="text-2xl font-bold">{Number(s.total_users) || 0}</p>
+          <p className="text-sm text-gray-500">Usuarios</p>
         </div>
-        <Link
-          href="/admin/equipos"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold flex items-center space-x-2 hover:bg-green-700 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Gestionar Equipos</span>
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <Calendar className="h-6 w-6 text-green-500 mb-2" />
+          <p className="text-2xl font-bold">{Number(s.upcoming_matches) || 0}</p>
+          <p className="text-sm text-gray-500">Próximos</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <Trophy className="h-6 w-6 text-yellow-500 mb-2" />
+          <p className="text-2xl font-bold">{Number(s.finished_matches) || 0}</p>
+          <p className="text-sm text-gray-500">Finalizados</p>
+        </div>
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <Users className="h-6 w-6 text-purple-500 mb-2" />
+          <p className="text-2xl font-bold">{Number(s.total_teams) || 0}</p>
+          <p className="text-sm text-gray-500">Equipos</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Link href="/admin/partidos" className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <Calendar className="h-8 w-8 text-blue-500 mb-3" />
+          <h2 className="font-bold text-lg">Partidos</h2>
+          <p className="text-sm text-gray-500">Gestionar partidos e ingresar resultados</p>
         </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Users className="h-6 w-6 text-blue-600" />
-            </div>
-            <span className="text-2xl font-bold">{totalParticipants}</span>
-          </div>
-          <h3 className="text-gray-500 text-sm font-medium">Total Inscritos</h3>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-green-100 p-2 rounded-lg">
-              <DollarSign className="h-6 w-6 text-green-600" />
-            </div>
-            <span className="text-2xl font-bold">S/ {totalPool}</span>
-          </div>
-          <h3 className="text-gray-500 text-sm font-medium">Pozo Acumulado</h3>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-yellow-100 p-2 rounded-lg">
-              <Trophy className="h-6 w-6 text-yellow-600" />
-            </div>
-            <span className="text-2xl font-bold">{tournaments.length}</span>
-          </div>
-          <h3 className="text-gray-500 text-sm font-medium">Torneos Activos</h3>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Calendar className="h-6 w-6 text-purple-600" />
-            </div>
-            <span className="text-2xl font-bold">0</span>
-          </div>
-          <h3 className="text-gray-500 text-sm font-medium">Partidos Pendientes</h3>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h2 className="font-bold text-lg">Torneos</h2>
-            </div>
-            <div className="divide-y divide-gray-100">
-              {tournaments.length === 0 ? (
-                <p className="p-6 text-gray-500 italic text-center">No hay torneos creados aún.</p>
-              ) : (
-                tournaments.map((tournament) => (
-                  <div key={tournament.id} className="p-6 flex items-center justify-between hover:bg-gray-50">
-                    <div>
-                      <h3 className="font-bold text-gray-900">{tournament.name}</h3>
-                      <p className="text-sm text-gray-500">{tournament.type} - {tournament.year}</p>
-                      <div className="mt-2 flex items-center space-x-4 text-xs">
-                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded">
-                          {tournament._count.participants} participantes
-                        </span>
-                        <span className="bg-green-50 text-green-700 px-2 py-1 rounded">
-                          {tournament._count.matches} partidos
-                        </span>
-                        <span className={`px-2 py-1 rounded ${tournament.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                          {tournament.status}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Link
-                        href={`/admin/torneos/${tournament.id}/partidos`}
-                        className="p-2 text-gray-400 hover:text-blue-600"
-                        title="Gestionar Partidos"
-                      >
-                        <Calendar className="h-5 w-5" />
-                      </Link>
-                      <Link
-                        href={`/admin/torneos/${tournament.id}/config`}
-                        className="p-2 text-gray-400 hover:text-gray-600"
-                        title="Configuración"
-                      >
-                        <Settings className="h-5 w-5" />
-                      </Link>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="font-bold text-lg mb-4">Acciones de Administración</h2>
-            <div className="space-y-3">
-              <Link
-                href="/admin/partidos"
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm font-medium">Gestionar Partidos</span>
-                <Calendar className="h-4 w-4 text-gray-400" />
-              </Link>
-              <Link
-                href="/admin/equipos"
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm font-medium">Gestionar Equipos</span>
-                <Users className="h-4 w-4 text-gray-400" />
-              </Link>
-              <Link
-                href="/admin/participantes"
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm font-medium">Validar Pagos</span>
-                <DollarSign className="h-4 w-4 text-gray-400" />
-              </Link>
-              <Link
-                href="/admin/grupos"
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm font-medium">Tabla de Grupos</span>
-                <Trophy className="h-4 w-4 text-gray-400" />
-              </Link>
-            </div>
-          </div>
-        </div>
+        <Link href="/admin/equipos" className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <Trophy className="h-8 w-8 text-green-500 mb-3" />
+          <h2 className="font-bold text-lg">Equipos</h2>
+          <p className="text-sm text-gray-500">Gestionar equipos del torneo</p>
+        </Link>
+        <Link href="/admin/usuarios" className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <Users className="h-8 w-8 text-purple-500 mb-3" />
+          <h2 className="font-bold text-lg">Usuarios</h2>
+          <p className="text-sm text-gray-500">Ver y gestionar usuarios</p>
+        </Link>
+        <Link href="/admin/seed" className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition">
+          <Settings className="h-8 w-8 text-orange-500 mb-3" />
+          <h2 className="font-bold text-lg">Seed Data</h2>
+          <p className="text-sm text-gray-500">Cargar datos iniciales del Mundial</p>
+        </Link>
       </div>
     </div>
   );

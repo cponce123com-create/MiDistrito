@@ -1,28 +1,14 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/db";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    // Verificar conexión a la base de datos
-    await prisma.$queryRaw`SELECT 1`;
-    
-    return NextResponse.json(
-      { 
-        status: "ok", 
-        database: "connected",
-        timestamp: new Date().toISOString() 
-      }, 
-      { status: 200 }
-    );
+    await db.execute("SELECT 1");
+    return NextResponse.json({ status: "ok", timestamp: new Date().toISOString() });
   } catch (error) {
     console.error("Health check failed:", error);
-    return NextResponse.json(
-      { 
-        status: "error", 
-        database: "disconnected",
-        message: error instanceof Error ? error.message : "Unknown error"
-      }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ status: "error" }, { status: 500 });
   }
 }

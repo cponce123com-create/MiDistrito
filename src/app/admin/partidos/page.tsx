@@ -1,146 +1,94 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-import { Calendar, Trophy, Plus } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-export const dynamic = 'force-dynamic';
+import { useState, useEffect } from "react";
 
-export default async function AdminPartidosPage() {
-  const session = await auth();
-  if (!session || (session.user as any).role !== "ADMIN") redirect("/dashboard");
+export default function AdminPartidosPage() {
+  const [matches, setMatches] = useState<any[]>([]);
+  const [saving, setSaving] = useState<string | null>(null);
 
-  const tournament = await prisma.tournament.findFirst({
-    where: { status: "ACTIVE" },
-    include: {
-      phases: { orderBy: { order: "asc" } },
-      matches: {
-        include: {
-          phase: true,
-          localTeam: true,
-          visitorTeam: true,
-        },
-        orderBy: { dateTime: "asc" },
-      },
-    },
-  });
+  useEffect(() => {
+    fetch("/api/matches").then((r) => r.json()).then(setMatches).catch(() => {});
+  }, []);
 
-  if (!tournament) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center py-20">
-          <Trophy className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-700">No hay torneo activo</h2>
-          <p className="text-gray-500">Ejecuta el seed para crear el Mundial 2026.</p>
-        </div>
-      </div>
+  const updateResult = async (matchId: string, homeScore: number, awayScore: number) => {
+    setSaving(matchId);
+    await fetch(`/api/matches/${matchId}/result`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ homeScore, awayScore }),
+    });
+    setMatches((prev) =>
+      prev.map((m) => (m.id === matchId ? { ...m, home_score: homeScore, away_score: awayScore, status: "finished" } : m))
     );
-  }
-
-  // Group matches by phase
-  const matchesByPhase = tournament.phases.map(phase => ({
-    phase,
-    matches: tournament.matches.filter(m => m.phaseId === phase.id),
-  }));
+    setSaving(null);
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Partidos</h1>
-          <p className="text-gray-600">{tournament.name} — {tournament.matches.length} partidos totales</p>
-        </div>
-      </div>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Gestionar Partidos</h1>
 
-      <div className="space-y-8">
-        {matchesByPhase.map(({ phase, matches }) => (
-          <div key={phase.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-bold text-lg text-gray-900">{phase.name}</h2>
-              <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">
-                {matches.length} partidos
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-gray-50 text-sm text-gray-500">
-                    <th className="px-6 py-3 font-medium">Fecha</th>
-                    <th className="px-6 py-3 font-medium">Local</th>
-                    <th className="px-6 py-3 font-medium text-center">Resultado</th>
-                    <th className="px-6 py-3 font-medium">Visitante</th>
-                    <th className="px-6 py-3 font-medium">Estadio</th>
-                    <th className="px-6 py-3 font-medium">Estado</th>
-                    <th className="px-6 py-3 font-medium">Grupo</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {matches.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-6 py-8 text-center text-gray-400 italic">
-                        No hay partidos en esta fase.
-                      </td>
-                    </tr>
-                  ) : (
-                    matches.map((match) => (
-                      <tr key={match.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                          {new Date(match.dateTime).toLocaleDateString("es-PE", {
-                            day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-                          })}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xl">{match.localTeam.flagUrl}</span>
-                            <span className="font-medium">{match.localTeam.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          {match.status === "FINISHED" ? (
-                            <span className="font-bold text-lg">
-                              {match.localGoals} - {match.visitorGoals}
-                            </span>
-                          ) : match.status === "IN_PLAY" ? (
-                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                              En vivo
-                            </span>
-                          ) : (
-                            <span className="text-gray-300">vs</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{match.visitorTeam.name}</span>
-                            <span className="text-xl">{match.visitorTeam.flagUrl}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{match.stadium || "-"}</td>
-                        <td className="px-6 py-4">
-                          <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                            match.status === "FINISHED" ? "bg-green-100 text-green-700" :
-                            match.status === "IN_PLAY" ? "bg-red-100 text-red-700" :
-                            match.status === "CLOSED" ? "bg-yellow-100 text-yellow-700" :
-                            "bg-blue-100 text-blue-700"
-                          }`}>
-                            {match.status === "PROGRAMMED" ? "Programado" :
-                             match.status === "IN_PLAY" ? "En vivo" :
-                             match.status === "FINISHED" ? "Finalizado" :
-                             match.status === "CLOSED" ? "Cerrado" : match.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {match.group || "-"}
-                        </td>
-                      </tr>
-                    ))
+      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50 border-b">
+              <th className="p-3 text-left text-sm">Partido</th>
+              <th className="p-3 text-center text-sm">Fecha</th>
+              <th className="p-3 text-center text-sm">Estado</th>
+              <th className="p-3 text-center text-sm">Resultado</th>
+              <th className="p-3 text-center text-sm">Acción</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {matches.map((m: any) => (
+              <tr key={m.id} className="hover:bg-gray-50">
+                <td className="p-3">
+                  <span className="font-medium">{m.home_name}</span> vs <span className="font-medium">{m.away_name}</span>
+                </td>
+                <td className="p-3 text-center text-sm text-gray-500">
+                  {new Date(m.match_date).toLocaleDateString("es-PE")}
+                </td>
+                <td className="p-3 text-center">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    m.status === "finished" ? "bg-green-100 text-green-700" :
+                    m.status === "live" ? "bg-red-100 text-red-700" :
+                    "bg-gray-100 text-gray-600"
+                  }`}>{m.status}</span>
+                </td>
+                <td className="p-3 text-center font-bold tabular-nums">
+                  {m.status === "finished" ? `${m.home_score} - ${m.away_score}` : "—"}
+                </td>
+                <td className="p-3 text-center">
+                  {m.status !== "finished" && (
+                    <ResultForm matchId={m.id} onSave={updateResult} saving={saving === m.id} />
                   )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {matches.length === 0 && (
+          <p className="p-8 text-center text-gray-400 italic">No hay partidos. Usa Seed Data para cargarlos.</p>
+        )}
       </div>
+    </div>
+  );
+}
+
+function ResultForm({ matchId, onSave, saving }: { matchId: string; onSave: (id: string, h: number, a: number) => void; saving: boolean }) {
+  const [h, setH] = useState(0);
+  const [a, setA] = useState(0);
+
+  return (
+    <div className="flex items-center justify-center gap-1">
+      <input type="number" min={0} value={h} onChange={(e) => setH(Math.max(0, parseInt(e.target.value) || 0))}
+        className="w-10 text-center border rounded text-sm" />
+      <span className="text-gray-400">:</span>
+      <input type="number" min={0} value={a} onChange={(e) => setA(Math.max(0, parseInt(e.target.value) || 0))}
+        className="w-10 text-center border rounded text-sm" />
+      <button onClick={() => onSave(matchId, h, a)} disabled={saving}
+        className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 disabled:opacity-50">
+        {saving ? "..." : "OK"}
+      </button>
     </div>
   );
 }

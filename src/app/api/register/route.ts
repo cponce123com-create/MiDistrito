@@ -1,65 +1,32 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, phone } = await req.json();
+    const { name, email, password } = await req.json();
 
     if (!name || !email || !password) {
-      return NextResponse.json(
-        { message: "Faltan campos obligatorios" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Faltan campos obligatorios" }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { message: "El correo electrónico ya está registrado" },
-        { status: 400 }
-      );
+    const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (existing) {
+      return NextResponse.json({ message: "El correo ya está registrado" }, { status: 400 });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        phone,
-      },
-    });
+    const [user] = await db
+      .insert(users)
+      .values({ name, email, password: hashed })
+      .returning();
 
-    const activeTournament = await prisma.tournament.findFirst({
-      where: { status: "ACTIVE" },
-    });
-
-    if (activeTournament) {
-      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      await prisma.participant.create({
-        data: {
-          userId: user.id,
-          tournamentId: activeTournament.id,
-          paymentStatus: "PENDING",
-          code,
-        },
-      });
-    }
-
-    return NextResponse.json(
-      { message: "Usuario creado correctamente", userId: user.id },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: "Usuario creado", userId: user.id }, { status: 201 });
   } catch (error) {
-    console.error("Error en registro:", error);
-    return NextResponse.json(
-      { message: "Error interno del servidor" },
-      { status: 500 }
-    );
+    console.error("Register error:", error);
+    return NextResponse.json({ message: "Error interno" }, { status: 500 });
   }
 }

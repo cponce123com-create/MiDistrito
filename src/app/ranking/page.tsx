@@ -1,122 +1,84 @@
-"use client";
+import { db } from "@/db";
+import { sql } from "drizzle-orm";
+import Link from "next/link";
+import { Trophy, Search } from "lucide-react";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Trophy } from "lucide-react";
+export const dynamic = "force-dynamic";
 
-interface RankingParticipant {
-  id: string;
-  user: { name: string };
-  totalPoints: number;
-  rank: number | null;
-  _count: { predictions: number };
-}
+export default async function RankingPage() {
+  const rankingData = await db.execute(sql`
+    SELECT u.id, u.name, u.image, COALESCE(SUM(p.points), 0) as total_points,
+      COUNT(p.id) as predictions_count
+    FROM users u
+    LEFT JOIN predictions p ON p.user_id = u.id
+    LEFT JOIN matches m ON p.match_id = m.id
+    WHERE m.status = 'finished' OR m.status IS NULL
+    GROUP BY u.id, u.name, u.image
+    ORDER BY total_points DESC
+  `);
 
-export default function RankingPage() {
-  const router = useRouter();
-  const [participants, setParticipants] = useState<RankingParticipant[]>([]);
-  const [hasLiveMatches, setHasLiveMatches] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const ranking = (rankingData.rows || []) as any[];
 
-  const fetchRanking = async () => {
-    try {
-      const res = await fetch("/api/ranking");
-      if (res.ok) {
-        const data = await res.json();
-        setParticipants(data.participants);
-        setHasLiveMatches(data.hasLiveMatches);
-      }
-    } catch (err) {
-      console.error("Error fetching ranking:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRanking();
-    const interval = setInterval(() => {
-      fetchRanking();
-      router.refresh();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [router]);
+  const totalMatches = await db.execute(sql`
+    SELECT COUNT(*) as count FROM matches WHERE status = 'finished'
+  `);
+  const totalFinished = Number(totalMatches.rows?.[0]?.count || 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="text-center mb-12">
-        <div className="bg-yellow-100 p-4 rounded-full w-fit mx-auto mb-6 relative">
-          <Trophy className="h-12 w-12 text-yellow-600" />
-          {hasLiveMatches && (
-            <span className="absolute -top-1 -right-1 flex items-center space-x-1 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-              <span>En vivo</span>
-            </span>
-          )}
-        </div>
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Ranking General</h1>
-        <p className="text-gray-600">Sigue la tabla de posiciones en vivo.</p>
-        {hasLiveMatches && (
-          <p className="text-sm text-green-600 font-medium mt-2 flex items-center justify-center space-x-1">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse inline-block" />
-            <span>● Actualizando cada 30s — Hay partidos en juego</span>
-          </p>
-        )}
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Trophy className="h-8 w-8 text-yellow-500" /> Ranking Global
+        </h1>
+        <p className="text-gray-500">{totalFinished} partidos finalizados</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div className="bg-white rounded-xl shadow-md border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="px-6 py-4 font-bold text-gray-900 w-20">#</th>
-                <th className="px-6 py-4 font-bold text-gray-900">Participante</th>
-                <th className="px-6 py-4 font-bold text-gray-900 text-center">Puntos</th>
-                <th className="px-6 py-4 font-bold text-gray-900 text-center hidden md:table-cell">Aciertos Exactos</th>
+              <tr className="bg-gray-50 border-b">
+                <th className="p-4 text-left text-sm font-medium text-gray-500">#</th>
+                <th className="p-4 text-left text-sm font-medium text-gray-500">Participante</th>
+                <th className="p-4 text-center text-sm font-medium text-gray-500">Pronósticos</th>
+                <th className="p-4 text-center text-sm font-medium text-gray-500">Eficiencia</th>
+                <th className="p-4 text-right text-sm font-medium text-gray-500">Puntos</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                    Cargando ranking...
-                  </td>
-                </tr>
-              ) : participants.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">
-                    Aún no hay participantes en el ranking.
-                  </td>
-                </tr>
+            <tbody className="divide-y">
+              {ranking.length === 0 ? (
+                <tr><td colSpan={5} className="p-8 text-center text-gray-400 italic">Aún no hay participantes</td></tr>
               ) : (
-                participants.map((p, index) => (
-                  <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      {index + 1 <= 3 ? (
-                        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold ${
-                          index === 0 ? "bg-yellow-400 text-white" :
-                          index === 1 ? "bg-gray-300 text-white" :
-                          "bg-amber-600 text-white"
-                        }`}>
-                          {index + 1}
+                ranking.map((r: any, i: number) => {
+                  const efficiency = totalFinished > 0
+                    ? Math.round((Number(r.total_points) / (totalFinished * 3)) * 100)
+                    : 0;
+                  return (
+                    <tr key={r.id} className="hover:bg-gray-50">
+                      <td className="p-4 font-bold text-lg">
+                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
+                      </td>
+                      <td className="p-4">
+                        <Link href={`/participante/${r.id}`} className="font-medium hover:text-blue-600">
+                          {r.name}
+                        </Link>
+                      </td>
+                      <td className="p-4 text-center">{Number(r.predictions_count)}</td>
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-20 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-green-500 h-2 rounded-full"
+                              style={{ width: `${Math.min(efficiency, 100)}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-gray-500">{efficiency}%</span>
                         </div>
-                      ) : (
-                        <span className="text-gray-500 font-medium ml-3">{index + 1}</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-gray-900">{p.user.name}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-xl font-extrabold text-blue-600">{p.totalPoints}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center hidden md:table-cell">
-                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
-                        {p._count.predictions}
-                      </span>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="p-4 text-right font-bold text-green-600 text-lg">{Number(r.total_points)}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

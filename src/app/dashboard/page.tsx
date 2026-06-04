@@ -1,149 +1,174 @@
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/db";
+import { users, predictions, matches, teams, tournaments } from "@/db/schema";
+import { eq, sql, desc, asc, and } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import { Trophy, Calendar, Target, Award, Download } from "lucide-react";
 import Link from "next/link";
+import { Trophy, Target, Calendar, TrendingUp } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const session = await auth();
+  if (!session?.user?.id) redirect("/login");
 
-  if (!session) {
-    redirect("/login");
-  }
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
-  const user = await prisma.user.findUnique({
-    where: { id: (session.user as any).id },
-    include: {
-      participants: {
-        include: {
-          tournament: true,
-          predictions: true,
-        },
-      },
-    },
-  });
+  if (!user) redirect("/login");
 
-  if (!user) {
-    redirect("/login");
-  }
+  // User's predictions with match data
+  const userPredictions = await db.execute(sql`
+    SELECT p.*, m.match_date, m.home_score, m.away_score, m.status as match_status,
+      ht.name as home_name, ht.flag_url as home_flag,
+      at.name as away_name, at.flag_url as away_flag
+    FROM predictions p
+    JOIN matches m ON p.match_id = m.id
+    JOIN teams ht ON m.home_team_id = ht.id
+    JOIN teams at ON m.away_team_id = at.id
+    WHERE p.user_id = ${user.id}
+    ORDER BY m.match_date DESC
+  `);
 
-  const activeParticipant = user.participants[0]; // Assuming one active tournament for now
+  const rows = (userPredictions.rows || []) as any[];
+  const totalPoints = rows.reduce((sum: number, r: any) => sum + Number(r.points), 0);
+  const correctScores = rows.filter((r: any) => Number(r.points) === 3).length;
+  const correctWinners = rows.filter((r: any) => Number(r.points) >= 1).length;
+
+  // Next upcoming matches
+  const upcomingMatches = await db.execute(sql`
+    SELECT m.*, ht.name as home_name, ht.flag_url as home_flag,
+      at.name as away_name, at.flag_url as away_flag
+    FROM matches m
+    JOIN teams ht ON m.home_team_id = ht.id
+    JOIN teams at ON m.away_team_id = at.id
+    WHERE m.status = 'upcoming'
+    ORDER BY m.match_date ASC
+    LIMIT 5
+  `);
+
+  // User ranking position
+  const ranking = await db.execute(sql`
+    SELECT u.id, COALESCE(SUM(p.points), 0) as total_points
+    FROM users u
+    LEFT JOIN predictions p ON p.user_id = u.id
+    LEFT JOIN matches m ON p.match_id = m.id
+    WHERE m.status = 'finished' OR m.status IS NULL
+    GROUP BY u.id
+    ORDER BY total_points DESC
+  `);
+
+  const position = (ranking.rows || [] as any[]).findIndex((r: any) => r.id === user.id) + 1;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Hola, {user.name} 👋</h1>
-        <p className="text-gray-600">Bienvenido a tu panel personal.</p>
+        <h1 className="text-3xl font-bold">Hola, {user.name} 👋</h1>
+        <p className="text-gray-500">Tu panel personal</p>
       </div>
 
-      {!activeParticipant ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
-          <Trophy className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">Aún no participas en ningún torneo</h2>
-          <p className="text-gray-600 mb-6">Únete al Mundial 2026 y empieza a ganar puntos.</p>
-          <Link
-            href="/torneos"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"
-          >
-            Ver Torneos Disponibles
-          </Link>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            <span className="text-sm text-gray-500">Puntos</span>
+          </div>
+          <p className="text-2xl font-bold">{totalPoints}</p>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-yellow-100 p-2 rounded-lg">
-                <Award className="h-6 w-6 text-yellow-600" />
-              </div>
-              <span className="text-2xl font-bold">{activeParticipant.totalPoints}</span>
-            </div>
-            <h3 className="text-gray-500 text-sm font-medium">Puntos Totales</h3>
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="h-5 w-5 text-green-500" />
+            <span className="text-sm text-gray-500">Posición</span>
           </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-blue-100 p-2 rounded-lg">
-                <Target className="h-6 w-6 text-blue-600" />
-              </div>
-              <span className="text-2xl font-bold">#{activeParticipant.rank || "-"}</span>
-            </div>
-            <h3 className="text-gray-500 text-sm font-medium">Posición Actual</h3>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-green-100 p-2 rounded-lg">
-                <Calendar className="h-6 w-6 text-green-600" />
-              </div>
-              <span className="text-2xl font-bold">
-                {activeParticipant.predictions.length}
-              </span>
-            </div>
-            <h3 className="text-gray-500 text-sm font-medium">Pronósticos Realizados</h3>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <Trophy className="h-6 w-6 text-purple-600" />
-              </div>
-              <span className="text-sm font-bold text-purple-600">
-                {activeParticipant.paymentStatus === "APPROVED" ? "Pagado" : "Pendiente"}
-              </span>
-            </div>
-            <h3 className="text-gray-500 text-sm font-medium">Estado de Pago</h3>
-          </div>
+          <p className="text-2xl font-bold">#{position || "-"}</p>
         </div>
-      )}
-
-      {activeParticipant && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h2 className="font-bold text-lg">Próximos Partidos</h2>
-                <Link href="/dashboard/pronosticos" className="text-blue-600 text-sm font-medium hover:underline">
-                  Ver todos
-                </Link>
-              </div>
-              <div className="p-6">
-                <p className="text-gray-500 text-center py-8 italic">No hay partidos próximos disponibles.</p>
-              </div>
-            </div>
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Target className="h-5 w-5 text-blue-500" />
+            <span className="text-sm text-gray-500">Exactos</span>
           </div>
-
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h2 className="font-bold text-lg mb-4">Acciones Rápidas</h2>
-              <div className="space-y-3">
-                <Link
-                  href="/dashboard/pronosticos"
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-sm font-medium">Editar Pronósticos</span>
-                  <Target className="h-4 w-4 text-gray-400" />
-                </Link>
-                <a
-                  href={`/api/predictions/export?participantId=${activeParticipant.id}`}
-                  target="_blank"
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-sm font-medium">Descargar PDF de Jugadas</span>
-                  <Download className="h-4 w-4 text-gray-400" />
-                </a>
-                <Link
-                  href="/ranking"
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-sm font-medium">Ver Ranking Completo</span>
-                  <Trophy className="h-4 w-4 text-gray-400" />
-                </Link>
-              </div>
-            </div>
-          </div>
+          <p className="text-2xl font-bold">{correctScores}</p>
         </div>
-      )}
+        <div className="bg-white p-4 rounded-xl border shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="h-5 w-5 text-purple-500" />
+            <span className="text-sm text-gray-500">Pronosticados</span>
+          </div>
+          <p className="text-2xl font-bold">{rows.length}</p>
+        </div>
+      </div>
+
+      {/* Next matches */}
+      <div className="bg-white rounded-xl border shadow-sm mb-8">
+        <div className="p-4 border-b flex justify-between items-center">
+          <h2 className="font-bold text-lg">Próximos Partidos</h2>
+          <Link href="/pronosticos" className="text-blue-600 text-sm font-medium hover:underline">Pronosticar</Link>
+        </div>
+        <div className="divide-y">
+          {(upcomingMatches.rows || [] as any[]).length === 0 ? (
+            <p className="p-6 text-center text-gray-400 italic">No hay partidos próximos</p>
+          ) : (
+            (upcomingMatches.rows || [] as any[]).map((m: any) => (
+              <div key={m.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{m.home_flag || "🏳️"}</span>
+                  <span className="font-medium">{m.home_name}</span>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-400">vs</p>
+                  <p className="text-xs text-gray-500">{new Date(m.match_date).toLocaleDateString("es-PE")}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-medium">{m.away_name}</span>
+                  <span className="text-2xl">{m.away_flag || "🏳️"}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Recent predictions */}
+      <div className="bg-white rounded-xl border shadow-sm">
+        <div className="p-4 border-b">
+          <h2 className="font-bold text-lg">Mis Pronósticos</h2>
+        </div>
+        <div className="divide-y">
+          {rows.slice(0, 10).map((p: any) => (
+            <div key={p.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
+              <div className="flex items-center gap-3">
+                <span>{p.home_flag || "🏳️"}</span>
+                <span className="font-medium text-sm">{p.home_name}</span>
+              </div>
+              <div className="text-center">
+                <p className="font-bold">{p.home_score ?? "?"}-{p.away_score ?? "?"}</p>
+                <p className="text-xs text-gray-400">
+                  {p.match_status === "finished" ? `${p.home_score}-${p.away_score}` : new Date(p.match_date).toLocaleDateString("es-PE")}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-medium text-sm">{p.away_name}</span>
+                <span>{p.away_flag || "🏳️"}</span>
+                {p.match_status === "finished" && (
+                  <span className={`text-sm font-bold ${Number(p.points) > 0 ? "text-green-600" : "text-red-400"}`}>
+                    +{p.points}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+          {rows.length === 0 && (
+            <p className="p-6 text-center text-gray-400 italic">
+              Aún no has hecho ningún pronóstico.{" "}
+              <Link href="/pronosticos" className="text-blue-600 hover:underline">¡Empieza aquí!</Link>
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
