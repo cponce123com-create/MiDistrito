@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Calendar, Trophy, Plus } from "lucide-react";
@@ -8,7 +7,7 @@ import Link from "next/link";
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPartidosPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || (session.user as any).role !== "ADMIN") redirect("/dashboard");
 
   const tournament = await prisma.tournament.findFirst({
