@@ -159,7 +159,7 @@ async function main() {
 
   // Generate Group Stage Matches (each team plays every other in same group = 6 matches per group x 12 = 72 matches)
   const groupMatches: any[] = [];
-  const matchDate = new Date("2026-06-11T12:00:00Z"); // Start of World Cup
+  const matchDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
 
   for (const group of groupNames) {
     const groupTeams = teamsDataByGroup[group];

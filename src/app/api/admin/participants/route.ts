@@ -24,6 +24,7 @@ export async function GET() {
       where: { tournamentId: tournament.id },
       include: {
         user: { select: { name: true, email: true } },
+        payments: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
       orderBy: { totalPoints: "desc" },
     });

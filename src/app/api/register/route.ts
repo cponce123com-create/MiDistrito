@@ -35,6 +35,22 @@ export async function POST(req: Request) {
       },
     });
 
+    const activeTournament = await prisma.tournament.findFirst({
+      where: { status: "ACTIVE" },
+    });
+
+    if (activeTournament) {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      await prisma.participant.create({
+        data: {
+          userId: user.id,
+          tournamentId: activeTournament.id,
+          paymentStatus: "PENDING",
+          code,
+        },
+      });
+    }
+
     return NextResponse.json(
       { message: "Usuario creado correctamente", userId: user.id },
       { status: 201 }

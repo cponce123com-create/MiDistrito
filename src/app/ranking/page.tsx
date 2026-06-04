@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function RankingPage() {
   const participants = await prisma.participant.findMany({
-    where: { tournament: { status: "ACTIVE" } },
+    where: { tournament: { status: "ACTIVE" }, paymentStatus: "APPROVED" },
     include: {
       user: { select: { name: true } },
       _count: {

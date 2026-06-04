@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url       = env("DATABASE_URL")
 }
 
 enum Role {
@@ -164,6 +165,7 @@ model Payment {
   reference       String?
   status          PaymentStatus @default(PENDING)
   validatedByAdmin Boolean    @default(false)
+  captureUrl      String?
   paymentDate     DateTime    @default(now())
   createdAt       DateTime    @default(now())
 }
