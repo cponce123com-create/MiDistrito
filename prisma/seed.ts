@@ -218,6 +218,7 @@ async function main() {
         status: MatchStatus.PROGRAMMED,
         localGoals: null,
         visitorGoals: null,
+        lockTime: new Date(r32Time.getTime() - 1 * 60 * 60 * 1000),
       },
     });
   }
@@ -239,6 +240,7 @@ async function main() {
         stadium: "Por definir",
         group: null,
         status: MatchStatus.PROGRAMMED,
+        lockTime: new Date(r16Time.getTime() - 1 * 60 * 60 * 1000),
       },
     });
   }
@@ -260,6 +262,7 @@ async function main() {
         stadium: "Por definir",
         group: null,
         status: MatchStatus.PROGRAMMED,
+        lockTime: new Date(qfTime.getTime() - 1 * 60 * 60 * 1000),
       },
     });
   }
@@ -281,6 +284,7 @@ async function main() {
         stadium: "Por definir",
         group: null,
         status: MatchStatus.PROGRAMMED,
+        lockTime: new Date(sfTime.getTime() - 1 * 60 * 60 * 1000),
       },
     });
   }
@@ -299,6 +303,7 @@ async function main() {
       stadium: "MetLife Stadium",
       group: null,
       status: MatchStatus.PROGRAMMED,
+      lockTime: new Date("2026-07-19T17:00:00Z"),
     },
   });
 
