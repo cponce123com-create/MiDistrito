@@ -44,27 +44,39 @@ export default async function AdminGruposPage() {
   }
 
   const teams = await prisma.team.findMany({ orderBy: { name: "asc" } });
+  const teamMap = new Map(teams.map(t => [t.id, t]));
 
-  // Group matches by group letter
   const groups = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+
+  // Build team-per-group mapping from matches (Team model has no 'group' field)
+  const teamsByGroup: Record<string, Set<string>> = {};
+  for (const match of tournament.matches) {
+    if (!match.group) continue;
+    if (!teamsByGroup[match.group]) teamsByGroup[match.group] = new Set();
+    teamsByGroup[match.group].add(match.localTeamId);
+    teamsByGroup[match.group].add(match.visitorTeamId);
+  }
 
   // Calculate standings for each group
   const groupStandings: Record<string, any[]> = {};
 
   for (const group of groups) {
-    const groupTeams = teams.filter(t => t.group === group);
+    const groupTeamIds = teamsByGroup[group];
+    if (!groupTeamIds || groupTeamIds.size === 0) continue;
+
+    const groupTeams = Array.from(groupTeamIds).map(id => teamMap.get(id)).filter(Boolean);
     const groupMatches = tournament.matches.filter(m => m.group === group);
 
     const standings = groupTeams.map(team => {
       const teamMatches = groupMatches.filter(
-        m => m.localTeamId === team.id || m.visitorTeamId === team.id
+        m => m.localTeamId === team!.id || m.visitorTeamId === team!.id
       );
 
       let pts = 0, w = 0, d = 0, l = 0, gf = 0, ga = 0;
 
       for (const m of teamMatches) {
         if (m.status !== "FINISHED" || m.localGoals === null || m.visitorGoals === null) continue;
-        const isLocal = m.localTeamId === team.id;
+        const isLocal = m.localTeamId === team!.id;
         const tGoals = isLocal ? m.localGoals : m.visitorGoals;
         const oGoals = isLocal ? m.visitorGoals : m.localGoals;
         gf += tGoals;
@@ -97,6 +109,14 @@ export default async function AdminGruposPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {groups.map(group => {
           const standings = groupStandings[group];
+          if (!standings) {
+            return (
+              <div key={group} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-blue-600 text-white px-6 py-3 font-bold text-lg">Grupo {group}</div>
+                <div className="px-6 py-3 text-center text-xs text-gray-400 italic">Sin partidos asignados</div>
+              </div>
+            );
+          }
           const hasResults = standings.some(s => s.played > 0);
 
           return (
@@ -122,12 +142,12 @@ export default async function AdminGruposPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {standings.map((s, idx) => (
-                      <tr key={s.team.id} className={`hover:bg-gray-50 ${idx < 2 ? "bg-green-50/50" : ""}`}>
+                      <tr key={s.team!.id} className={`hover:bg-gray-50 ${idx < 2 ? "bg-green-50/50" : ""}`}>
                         <td className="px-2 py-2 font-bold text-gray-500">{idx + 1}</td>
                         <td className="px-2 py-2">
                           <div className="flex items-center space-x-1.5">
-                            <span>{s.team.flagUrl}</span>
-                            <span className="font-semibold truncate max-w-[80px]">{s.team.shortName}</span>
+                            <span>{s.team!.flagUrl}</span>
+                            <span className="font-semibold truncate max-w-[80px]">{s.team!.shortName}</span>
                           </div>
                         </td>
                         <td className="px-2 py-2 text-center">{s.played}</td>
