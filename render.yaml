@@ -10,10 +10,7 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: NEXTAUTH_URL
-        fromService:
-          name: polla-deportiva
-          type: web
-          property: host
+        value: https://polla-oi8i.onrender.com
       - key: NEXTAUTH_SECRET
         generateValue: true
       - key: NODE_ENV
