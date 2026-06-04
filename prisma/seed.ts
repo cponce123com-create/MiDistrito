@@ -145,10 +145,16 @@ async function main() {
 
   const groupNames = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 
-  // Get teams by group
-  const teamsByGroup: Record<string, any[]> = {};
+  // Get teams by group from original data (Team model has no 'group' field)
+  const teamsDataByGroup: Record<string, typeof teamsData> = {};
   for (const g of groupNames) {
-    teamsByGroup[g] = teams.filter(t => t.group === g);
+    teamsDataByGroup[g] = teamsData.filter(t => t.group === g);
+  }
+
+  // Map team IDs to Prisma Team objects for lookups
+  const teamsMap: Record<string, (typeof teams)[0]> = {};
+  for (const t of teams) {
+    teamsMap[t.id] = t;
   }
 
   // Generate Group Stage Matches (each team plays every other in same group = 6 matches per group x 12 = 72 matches)
@@ -156,7 +162,7 @@ async function main() {
   const matchDate = new Date("2026-06-11T12:00:00Z"); // Start of World Cup
 
   for (const group of groupNames) {
-    const groupTeams = teamsByGroup[group];
+    const groupTeams = teamsDataByGroup[group];
     if (groupTeams.length < 4) continue;
 
     // Generate round-robin: 0-1, 0-2, 0-3, 1-2, 1-3, 2-3
