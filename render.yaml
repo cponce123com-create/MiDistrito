@@ -11,6 +11,8 @@ services:
         sync: false
       - key: NEXTAUTH_URL
         value: https://polla-oi8i.onrender.com
+      - key: AUTH_URL
+        value: https://polla-oi8i.onrender.com
       - key: NEXTAUTH_SECRET
         generateValue: true
       - key: NODE_ENV
