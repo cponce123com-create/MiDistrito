@@ -3,6 +3,15 @@
 import { useState, useEffect } from "react";
 import { Check, X, Search, DollarSign } from "lucide-react";
 
+interface Payment {
+  id: string;
+  amount: number;
+  method: string | null;
+  reference: string | null;
+  status: string;
+  captureUrl: string | null;
+}
+
 interface Participant {
   id: string;
   user: { name: string; email: string };
@@ -11,6 +20,7 @@ interface Participant {
   amountPaid: number | null;
   totalPoints: number;
   rank: number | null;
+  payments: Payment[];
 }
 
 export default function AdminParticipantesPage() {
@@ -178,12 +188,30 @@ export default function AdminParticipantesPage() {
           </table>
         </div>
       </div>
-    </div>
-  );
-}
-ura de comprobante de pago"
-              className="w-full h-auto rounded-xl shadow-2xl"
-            />
+
+      {/* Modal for viewing payment capture */}
+      {selectedCaptureUrl && (
+        <div
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedCaptureUrl(null)}
+        >
+          <div className="max-w-2xl w-full bg-white rounded-xl overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="font-bold text-gray-900">Comprobante de Pago</h3>
+              <button
+                onClick={() => setSelectedCaptureUrl(null)}
+                className="text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-6">
+              <img
+                src={selectedCaptureUrl}
+                alt="Comprobante de pago"
+                className="w-full h-auto rounded-xl shadow-md"
+              />
+            </div>
           </div>
         </div>
       )}
