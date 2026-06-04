@@ -42,7 +42,7 @@ export default async function DashboardPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
           <Trophy className="h-12 w-12 text-blue-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold mb-2">Aún no participas en ningún torneo</h2>
-          <p className="text-gray-600 mb-6">Únete a la Copa América 2024 y empieza a ganar puntos.</p>
+          <p className="text-gray-600 mb-6">Únete al Mundial 2026 y empieza a ganar puntos.</p>
           <Link
             href="/torneos"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"

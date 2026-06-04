@@ -32,11 +32,11 @@ export default async function AdminDashboardPage() {
           <p className="text-gray-600">Gestiona torneos, partidos y participantes.</p>
         </div>
         <Link
-          href="/admin/torneos/nuevo"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex items-center space-x-2 hover:bg-blue-700 transition-colors"
+          href="/admin/equipos"
+          className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold flex items-center space-x-2 hover:bg-green-700 transition-colors"
         >
           <Plus className="h-5 w-5" />
-          <span>Nuevo Torneo</span>
+          <span>Gestionar Equipos</span>
         </Link>
       </div>
 
@@ -137,25 +137,32 @@ export default async function AdminDashboardPage() {
             <h2 className="font-bold text-lg mb-4">Acciones de Administración</h2>
             <div className="space-y-3">
               <Link
+                href="/admin/partidos"
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm font-medium">Gestionar Partidos</span>
+                <Calendar className="h-4 w-4 text-gray-400" />
+              </Link>
+              <Link
+                href="/admin/equipos"
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm font-medium">Gestionar Equipos</span>
+                <Users className="h-4 w-4 text-gray-400" />
+              </Link>
+              <Link
                 href="/admin/participantes"
                 className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
               >
                 <span className="text-sm font-medium">Validar Pagos</span>
-                <Users className="h-4 w-4 text-gray-400" />
+                <DollarSign className="h-4 w-4 text-gray-400" />
               </Link>
               <Link
-                href="/admin/resultados"
+                href="/admin/grupos"
                 className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
               >
-                <span className="text-sm font-medium">Cargar Resultados</span>
+                <span className="text-sm font-medium">Tabla de Grupos</span>
                 <Trophy className="h-4 w-4 text-gray-400" />
-              </Link>
-              <Link
-                href="/admin/reportes"
-                className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <span className="text-sm font-medium">Generar Reportes CSV</span>
-                <Download className="h-4 w-4 text-gray-400" />
               </Link>
             </div>
           </div>

@@ -9,10 +9,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
           <Trophy className="h-16 w-16 mb-6 text-yellow-400" />
           <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">
-            Polla Deportiva 2024
+            Polla Mundial 2026
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 max-w-2xl mb-10 leading-relaxed">
-            Participa en la quiniela del Mundial, Libertadores y más. Demuestra tus conocimientos y gana el gran pozo.
+            Participa en la quiniela del Mundial 2026. Demuestra tus conocimientos y gana el gran pozo.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link

@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Polla Deportiva - Quiniela Mundial y Libertadores",
-  description: "Plataforma de quinielas deportivas para competir con tus amigos.",
+  title: "Polla Mundial 2026 - Quiniela del Mundial 2026",
+  description: "Plataforma de quinielas deportivas del Mundial 2026 para competir con tus amigos.",
 };
 
 export default function RootLayout({

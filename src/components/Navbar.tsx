@@ -18,7 +18,7 @@ export const Navbar = () => {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Trophy className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Polla Deportiva</span>
+              <span className="text-xl font-bold text-gray-900">Polla Mundial 2026</span>
             </Link>
           </div>
 

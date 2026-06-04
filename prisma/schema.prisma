@@ -25,6 +25,7 @@ enum TournamentStatus {
 
 enum PhaseType {
   GROUPS
+  ROUND_OF_32
   OCTAVOS
   CUARTOS
   SEMIFINAL
