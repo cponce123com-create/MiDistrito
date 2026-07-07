@@ -15,6 +15,13 @@
       "when": 1783460395506,
       "tag": "0001_mysterious_gabe_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783461064638,
+      "tag": "0002_overjoyed_molten_man",
+      "breakpoints": true
     }
   ]
 }

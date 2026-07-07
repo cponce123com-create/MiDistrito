@@ -5,6 +5,7 @@ import { AuthProvider } from "./core/AuthContext";
 import { DistrictProvider } from "./core/DistrictContext";
 import { radarRoutes } from "./modules/radar/routes";
 import { newsRoutes } from "./modules/news/routes";
+import { marketplaceRoutes } from "./modules/marketplace/routes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,9 @@ export default function App() {
                     <Route key={route.path} path={route.path!} element={route.element} />
                   ))}
                   {newsRoutes.map((route) => (
+                    <Route key={route.path} path={route.path!} element={route.element} />
+                  ))}
+                  {marketplaceRoutes.map((route) => (
                     <Route key={route.path} path={route.path!} element={route.element} />
                   ))}
                   <Route path="*" element={<Navigate to="/" replace />} />

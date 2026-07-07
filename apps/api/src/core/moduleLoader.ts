@@ -11,7 +11,7 @@ interface ModuleEntry { name: string; enabled: boolean; }
 const modules: ModuleEntry[] = [
   { name: "radar", enabled: true },
   { name: "news", enabled: true },
-  { name: "marketplace", enabled: false },
+  { name: "marketplace", enabled: true },
 ];
 
 /**

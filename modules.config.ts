@@ -8,8 +8,6 @@ export interface ModuleConfig {
   dependencies: string[];
 }
 
-export type ModuleInit = (app: Express) => void | Promise<void>;
-
 const modules: ModuleConfig[] = [
   {
     name: "radar",
@@ -33,11 +31,12 @@ const modules: ModuleConfig[] = [
   },
   {
     name: "marketplace",
-    description: "Marketplace vecinal para comercio local",
-    enabled: false,
+    description: "Marketplace vecinal con tiendas, productos y pedidos",
+    enabled: true,
     permissions: [
-      "marketplace:product.read", "marketplace:product.create", "marketplace:product.update",
-      "marketplace:product.delete", "marketplace:order.read", "marketplace:order.create",
+      "marketplace:store.create", "marketplace:store.update", "marketplace:product.create",
+      "marketplace:product.read", "marketplace:product.update", "marketplace:product.delete",
+      "marketplace:order.create", "marketplace:order.read", "marketplace:favorite",
     ],
     dependencies: [],
   },
