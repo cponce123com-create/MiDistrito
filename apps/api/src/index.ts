@@ -53,6 +53,18 @@ const server = app.listen(port, async () => {
   } catch (err) {
     console.error({ err }, "Module loading encountered errors (server continues)");
   }
+
+  // 404 + error handlers (después de los módulos)
+  app.use("/api", (req, res, next) => {
+    if (req.path === "/api" || req.path.startsWith("/api/")) {
+      return res.status(404).json({ error: "Endpoint no encontrado." });
+    }
+    next();
+  });
+  app.use((err: any, _req: any, res: any, _next: any) => {
+    console.error("Unhandled error:", err);
+    res.status(500).json({ error: "Error interno del servidor." });
+  });
 });
 
 export { app, server };

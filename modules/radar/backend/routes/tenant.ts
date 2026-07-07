@@ -10,7 +10,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@midistrito/db";
 import { districtsTable } from "@midistrito/db/schema";
 import { eq } from "drizzle-orm";
-import { optionalAuth } from "../../../../apps/api/src/core/auth";
+import { optionalAuth } from "@midistrito/core";
 
 const router: IRouter = Router();
 

@@ -16,8 +16,8 @@ import {
   districtsTable,
 } from "@midistrito/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
-import { requireAuth, optionalAuth } from "../../../../apps/api/src/core/auth";
-import { events } from "../../../../apps/api/src/core/events";
+import { requireAuth, optionalAuth } from "@midistrito/core";
+import { events } from "@midistrito/core";
 
 const router: IRouter = Router();
 

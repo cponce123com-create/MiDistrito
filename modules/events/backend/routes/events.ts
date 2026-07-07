@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "@midistrito/db";
 import { eventsTable, eventRegistrationsTable } from "@midistrito/db/schema";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
-import { requireAuth, optionalAuth } from "../../../../apps/api/src/core/auth";
+import { requireAuth, optionalAuth } from "@midistrito/core";
 
 const router = Router();
 

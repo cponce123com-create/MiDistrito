@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db } from "@midistrito/db";
 import { categoriesTable } from "@midistrito/db/schema";
 import { eq, asc } from "drizzle-orm";
-import { requireAuth } from "../../../../apps/api/src/core/auth";
+import { requireAuth } from "@midistrito/core";
 
 const router = Router();
 

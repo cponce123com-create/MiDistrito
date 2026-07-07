@@ -13,7 +13,7 @@ import {
   usersTable,
 } from "@midistrito/db/schema";
 import { eq, and, desc, isNull } from "drizzle-orm";
-import { requireAuth, requireViewerOrAbove } from "../../../../apps/api/src/core/auth";
+import { requireAuth, requireViewerOrAbove } from "@midistrito/core";
 
 const router: IRouter = Router();
 

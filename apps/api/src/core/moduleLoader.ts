@@ -11,8 +11,8 @@ const modules: ModuleEntry[] = [
   { name: "radar", enabled: true },
   { name: "news", enabled: true },
   { name: "marketplace", enabled: true },
-  { name: "tourism", enabled: true },
-  { name: "events", enabled: true },
+  { name: "tourism", enabled: false },
+  { name: "events", enabled: false },
 ];
 
 function resolveModulePath(moduleName: string): string | null {

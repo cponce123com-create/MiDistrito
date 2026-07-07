@@ -242,6 +242,8 @@ importers:
         specifier: 'catalog:'
         version: 3.25.76
 
+  lib/core: {}
+
   lib/db:
     dependencies:
       drizzle-orm:
@@ -279,25 +281,15 @@ importers:
 
   modules/marketplace:
     dependencies:
-      '@midistrito/db':
+      '@midistrito/core':
         specifier: workspace:*
-        version: link:../../lib/db
-      express:
-        specifier: ^5
-        version: 5.2.1
-      zod:
-        specifier: 'catalog:'
-        version: 3.25.76
-    devDependencies:
-      '@types/express':
-        specifier: ^5.0.6
-        version: 5.0.6
-      '@types/node':
-        specifier: 'catalog:'
-        version: 25.9.4
+        version: link:../../lib/core
 
   modules/news:
     dependencies:
+      '@midistrito/core':
+        specifier: workspace:*
+        version: link:../../lib/core
       '@midistrito/db':
         specifier: workspace:*
         version: link:../../lib/db
@@ -320,6 +312,9 @@ importers:
       '@midistrito/api-zod':
         specifier: workspace:*
         version: link:../../lib/api-zod
+      '@midistrito/core':
+        specifier: workspace:*
+        version: link:../../lib/core
       '@midistrito/db':
         specifier: workspace:*
         version: link:../../lib/db

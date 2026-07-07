@@ -6,8 +6,8 @@ import { z } from "zod";
 import { db } from "@midistrito/db";
 import { articlesTable, sourcesTable, categoriesTable } from "@midistrito/db/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
-import { requireAuth, optionalAuth } from "../../../../apps/api/src/core/auth";
-import { events } from "../../../../apps/api/src/core/events";
+import { requireAuth, optionalAuth } from "@midistrito/core";
+import { events } from "@midistrito/core";
 
 const router = Router();
 

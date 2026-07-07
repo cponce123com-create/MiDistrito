@@ -5,7 +5,7 @@
 import { db } from "@midistrito/db";
 import { sourcesTable, articlesTable, scraperLogsTable, telegramChannelsTable, systemConfigTable } from "@midistrito/db/schema";
 import { eq, and, lt, sql, isNull } from "drizzle-orm";
-import { events } from "../../../../apps/api/src/core/events";
+import { events } from "@midistrito/core";
 import Parser from "rss-parser";
 import cron from "node-cron";
 

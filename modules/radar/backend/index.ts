@@ -4,7 +4,7 @@
  */
 import type { Express, Router } from "express";
 import { Router as createRouter } from "express";
-import { events } from "../../../apps/api/src/core/events";
+import { events } from "@midistrito/core";
 
 import reportsRouter from "./routes/reports";
 import alertsRouter from "./routes/alerts";

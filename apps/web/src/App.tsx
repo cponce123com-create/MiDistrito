@@ -6,8 +6,6 @@ import { DistrictProvider } from "./core/DistrictContext";
 import { radarRoutes } from "./modules/radar/routes";
 import { newsRoutes } from "./modules/news/routes";
 import { marketplaceRoutes } from "./modules/marketplace/routes";
-import { tourismRoutes } from "./modules/tourism/routes";
-import { eventsRoutes } from "./modules/events/routes";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -20,8 +18,6 @@ function Layout({ children }: { children: React.ReactNode }) {
         <a href="/" className="px-2 py-1 rounded hover:bg-gray-700">Inicio</a>
         <a href="/noticias" className="px-2 py-1 rounded hover:bg-gray-700">Noticias</a>
         <a href="/marketplace" className="px-2 py-1 rounded hover:bg-gray-700">Tiendas</a>
-        <a href="/turismo" className="px-2 py-1 rounded hover:bg-gray-700">Turismo</a>
-        <a href="/eventos" className="px-2 py-1 rounded hover:bg-gray-700">Eventos</a>
       </nav>
       <main className="max-w-lg mx-auto">{children}</main>
     </div>
@@ -37,7 +33,7 @@ function Loading() {
 }
 
 export default function App() {
-  const allRoutes = [...radarRoutes, ...newsRoutes, ...marketplaceRoutes, ...tourismRoutes, ...eventsRoutes];
+  const allRoutes = [...radarRoutes, ...newsRoutes, ...marketplaceRoutes];
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>

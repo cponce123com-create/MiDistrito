@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@midistrito/db": "workspace:*",
+    "@midistrito/core": "workspace:*",
     "express": "^5",
     "zod": "catalog:"
   },

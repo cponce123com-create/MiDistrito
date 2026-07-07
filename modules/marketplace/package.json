@@ -2,5 +2,8 @@
   "name": "@midistrito/marketplace",
   "version": "0.1.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@midistrito/core": "workspace:*"
+  }
 }

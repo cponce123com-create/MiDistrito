@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@midistrito/api-zod": "workspace:*",
+    "@midistrito/core": "workspace:*",
     "@midistrito/db": "workspace:*",
     "express": "^5",
     "zod": "catalog:"

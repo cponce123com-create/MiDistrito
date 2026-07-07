@@ -57,5 +57,9 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// ── Core routes (auth, users, districts, RENIEC, swagger) ─────────────────
+import coreRouter from "./routes/index";
+app.use("/api", coreRouter);
+
 // ── Module loader (se ejecuta después de export, en index.ts) ─────────────
 export default app;

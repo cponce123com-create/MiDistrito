@@ -18,7 +18,7 @@ import {
   storesTable,
 } from "@midistrito/db/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { requireAuth, optionalAuth } from "../../../../apps/api/src/core/auth";
+import { requireAuth, optionalAuth } from "@midistrito/core";
 
 const router: IRouter = Router();
 

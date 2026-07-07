@@ -10,7 +10,7 @@ import { z } from "zod";
 import { db } from "@midistrito/db";
 import { marketCategoriesTable } from "@midistrito/db/schema";
 import { eq, asc } from "drizzle-orm";
-import { requireAuth, requireAdmin } from "../../../../apps/api/src/core/auth";
+import { requireAuth, requireAdmin } from "@midistrito/core";
 
 const router: IRouter = Router();
 

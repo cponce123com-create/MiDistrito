@@ -14,8 +14,8 @@ import { z } from "zod";
 import { db } from "@midistrito/db";
 import { panicAlertsTable, reportsTable, districtsTable } from "@midistrito/db/schema";
 import { eq, and, desc, gt, sql } from "drizzle-orm";
-import { requireAuth, requireAdmin, optionalAuth } from "../../../../apps/api/src/core/auth";
-import { events } from "../../../../apps/api/src/core/events";
+import { requireAuth, requireAdmin, optionalAuth } from "@midistrito/core";
+import { events } from "@midistrito/core";
 
 const router: IRouter = Router();
 

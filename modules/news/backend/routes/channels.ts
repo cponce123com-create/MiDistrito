@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db } from "@midistrito/db";
 import { telegramChannelsTable } from "@midistrito/db/schema";
 import { eq } from "drizzle-orm";
-import { requireAuth } from "../../../../apps/api/src/core/auth";
+import { requireAuth } from "@midistrito/core";
 
 const router = Router();
 

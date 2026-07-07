@@ -1,0 +1,56 @@
+# Render Blueprint — MiDistrito Platform
+# https://render.com/docs/blueprint-spec
+
+services:
+  # ── API Backend ──────────────────────────────────────────────────────────
+  - type: web
+    name: midistrito-api
+    runtime: node
+    repo: https://github.com/cponce123com-create/MiDistrito
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    startCommand: pnpm --filter @midistrito/api run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://midistrito-web.onrender.com
+      - key: RENIEC_API_TOKEN
+        sync: false
+      - key: RENIEC_API_URL
+        value: https://api.reniec.com/v1
+      - key: NEWS_SCRAPER_ENABLED
+        value: "false"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: LOG_LEVEL
+        value: info
+
+  # ── Frontend Web ─────────────────────────────────────────────────────────
+  - type: web
+    name: midistrito-web
+    runtime: static
+    repo: https://github.com/cponce123com-create/MiDistrito
+    region: oregon
+    branch: main
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @midistrito/web exec vite build
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://midistrito-api.onrender.com/api
+
+databases:
+  - name: midistrito-db
+    region: oregon
+    plan: free
+    databaseName: midistrito
+    ipAllowList: []

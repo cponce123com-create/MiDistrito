@@ -7,7 +7,7 @@
  */
 import { Router, type IRouter, type Request, type Response } from "express";
 import crypto from "crypto";
-import { requireAuth } from "../../../../apps/api/src/core/auth";
+import { requireAuth } from "@midistrito/core";
 
 const router: IRouter = Router();
 

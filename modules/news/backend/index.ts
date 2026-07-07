@@ -11,7 +11,7 @@ import categoriesRouter from "./routes/categories";
 import channelsRouter from "./routes/channels";
 import approvalRouter from "./routes/approval";
 import statsRouter from "./routes/stats";
-import { events } from "../../../apps/api/src/core/events";
+import { events } from "@midistrito/core";
 import { startScraperCron, stopScraperCron } from "./routes/scraper";
 
 const router: Router = createRouter();

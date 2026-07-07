@@ -5,8 +5,8 @@ import { Router } from "express";
 import { db } from "@midistrito/db";
 import { articlesTable, approvalQueueTable } from "@midistrito/db/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { requireAuth } from "../../../../apps/api/src/core/auth";
-import { events } from "../../../../apps/api/src/core/events";
+import { requireAuth } from "@midistrito/core";
+import { events } from "@midistrito/core";
 
 const router = Router();
 

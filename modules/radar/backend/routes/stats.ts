@@ -13,7 +13,7 @@ import {
   missingPersonsTable,
 } from "@midistrito/db/schema";
 import { eq, and, gte, sql, desc } from "drizzle-orm";
-import { optionalAuth } from "../../../../apps/api/src/core/auth";
+import { optionalAuth } from "@midistrito/core";
 
 const router: IRouter = Router();
 

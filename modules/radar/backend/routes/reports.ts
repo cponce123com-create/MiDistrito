@@ -18,8 +18,8 @@ import {
 } from "@midistrito/db/schema";
 import { auditLogsTable } from "@midistrito/db/schema";
 import { eq, and, desc, sql, isNull } from "drizzle-orm";
-import { requireAuth, optionalAuth, requireAdmin } from "../../../../apps/api/src/core/auth";
-import { events } from "../../../../apps/api/src/core/events";
+import { requireAuth, optionalAuth, requireAdmin } from "@midistrito/core";
+import { events } from "@midistrito/core";
 
 const router: IRouter = Router();
 
