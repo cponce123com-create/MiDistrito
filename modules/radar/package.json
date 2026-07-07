@@ -1,0 +1,21 @@
+{
+  "name": "@midistrito/module-radar",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./backend": "./backend/index.ts",
+    "./backend/routes": "./backend/routes/index.ts",
+    "./backend/schema": "./backend/schema/index.ts"
+  },
+  "dependencies": {
+    "@midistrito/api-zod": "workspace:*",
+    "@midistrito/db": "workspace:*",
+    "express": "^5",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "catalog:"
+  }
+}

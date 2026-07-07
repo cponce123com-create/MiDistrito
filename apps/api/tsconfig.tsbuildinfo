@@ -1,0 +1,1 @@
+{"root":["./src/app.ts","./src/index.ts","./src/core/auth.ts","./src/core/districts.ts","./src/core/events.ts","./src/core/health.ts","./src/core/users.ts","./src/lib/logger.ts","./src/lib/swagger.ts","./src/routes/index.ts"],"version":"5.9.3"}

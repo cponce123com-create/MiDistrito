@@ -1,41 +1,20 @@
 {
-  "name": "polla-mundial",
+  "name": "mi-distrito",
   "version": "0.1.0",
+  "description": "Plataforma cívica multi-distrito para el Perú",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start -p $PORT",
-    "lint": "eslint",
-    "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
-  },
-  "dependencies": {
-    "@auth/core": "^0.37.2",
-    "@neondatabase/serverless": "^1.0.0",
-    "bcryptjs": "^3.0.3",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
-    "drizzle-orm": "^0.40.1",
-    "lucide-react": "^0.577.0",
-    "next": "16.2.1",
-    "next-auth": "5.0.0-beta.31",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "tailwind-merge": "^3.5.0",
-    "zod": "^3.24.3"
+    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "dev:api": "pnpm --filter @midistrito/api run dev",
+    "dev:web": "pnpm --filter @midistrito/web run dev",
+    "typecheck": "tsc --build",
+    "test": "pnpm -r --if-present run test"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "drizzle-kit": "^0.30.6",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.1",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

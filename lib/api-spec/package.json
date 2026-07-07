@@ -1,0 +1,15 @@
+{
+  "name": "@midistrito/api-spec",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "orval --config ./orval.config.ts"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  }
+}

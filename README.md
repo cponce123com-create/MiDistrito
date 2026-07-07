@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MiDistrito
 
-## Getting Started
+Plataforma cívica multi-distrito para reportes vecinales, alertas de seguridad y gestión municipal.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Capa | Tecnología |
+|------|-----------|
+| **Backend** | Express + TypeScript (monolito modular) |
+| **Frontend** | React + Vite + Tailwind CSS v4 + shadcn/ui |
+| **Database** | PostgreSQL (Neon) con Drizzle ORM |
+| **Auth** | JWT (access + refresh tokens), bcryptjs |
+| **Monorepo** | pnpm workspaces |
+
+## Arquitectura
+
+Monolito modular con libs compartidas. Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) para ADRs completos.
+
+```
+mi-distrito/
+├── apps/
+│   ├── api/          # Backend Express — Core + módulos registrados
+│   └── web/          # Frontend React + Vite + Tailwind
+├── lib/              # Librerías compartidas (workspaces)
+│   ├── db/           # Drizzle ORM — schema, migrations, conexión
+│   ├── api-zod/      # Schemas Zod compartidos frontend/backend
+│   ├── api-spec/     # OpenAPI spec + orval config
+│   ├── api-client-react/  # React Query hooks generados
+│   └── object-storage/    # Cloudinary facade
+├── modules/          # Módulos de dominio (radar, news, marketplace)
+├── docs/             # ADRs, ERD, roadmap
+└── scripts/          # Utilidades de desarrollo
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Empezar
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Instalar dependencias (desde la raíz)
+pnpm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Iniciar backend (puerto 3000)
+pnpm dev:api
 
-## Learn More
+# Iniciar frontend (puerto 5173)
+pnpm dev:web
 
-To learn more about Next.js, take a look at the following resources:
+# Construir todo
+pnpm build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Variables de entorno requeridas (ver `.env.example`):
+- `PORT` — Puerto del backend
+- `DATABASE_URL` — URL de PostgreSQL
+- `JWT_SECRET` — Secreto para firmar tokens
+- `CORS_ORIGIN` — Orígenes permitidos (separados por coma)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Documentación
 
-## Deploy on Vercel
+- [Arquitectura y ADRs](docs/ARCHITECTURE.md)
+- [Modelo de datos (ERD)](docs/ERD.md)
+- [Inventario de assets](docs/INVENTORY.md)
+- [Roadmap](docs/ROADMAP.md)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Módulos
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Módulo | Estado | Descripción |
+|--------|--------|-------------|
+| Radar Vecinal | ⏳ Portándose | Reportes ciudadanos, alertas de pánico, personas desaparecidas |
+| Noticias | 📅 Fase 2 | Agregador de noticias locales con bot de Telegram |
+| Marketplace | 📅 Fase 3 | Directorio comercial y ventas por distrito |
