@@ -1,4 +1,4 @@
-# Render Blueprint — MiDistrito Platform
+# Render Blueprint — MiDistrito Platform v1
 # https://render.com/docs/blueprint-spec
 
 services:
@@ -10,8 +10,12 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
-    startCommand: pnpm --filter @midistrito/api run start
+    buildCommand: |
+      pnpm install --no-frozen-lockfile
+      pnpm run build
+    startCommand: |
+      pnpm --filter @midistrito/api run migrate &&
+      pnpm --filter @midistrito/api run start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -22,8 +26,12 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: LICENSE_SECRET
+        sync: false
       - key: CORS_ORIGIN
         value: https://midistrito-web.onrender.com
+      - key: APP_URL
+        value: https://midistrito-api.onrender.com
       - key: RENIEC_API_TOKEN
         sync: false
       - key: RENIEC_API_URL
@@ -31,6 +39,12 @@ services:
       - key: NEWS_SCRAPER_ENABLED
         value: "false"
       - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
         sync: false
       - key: LOG_LEVEL
         value: info

@@ -57,7 +57,8 @@ const server = app.listen(port, async () => {
   // 404 + error handlers (después de los módulos)
   app.use("/api", (req, res, next) => {
     if (req.path === "/api" || req.path.startsWith("/api/")) {
-      return res.status(404).json({ error: "Endpoint no encontrado." });
+      res.status(404).json({ error: "Endpoint no encontrado." });
+      return;
     }
     next();
   });
