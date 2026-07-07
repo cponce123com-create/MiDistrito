@@ -1,5 +1,6 @@
 import app from "./app";
 import { pool } from "@midistrito/db";
+import { loadModules } from "./core/moduleLoader";
 
 const rawPort = process.env["PORT"];
 if (!rawPort) {
@@ -27,19 +28,14 @@ let shuttingDown = false;
 async function gracefulShutdown(signal: string) {
   if (shuttingDown) return;
   shuttingDown = true;
-
   console.log({ signal }, "Shutdown signal received");
-
   try {
-    server.close(() => {
-      console.log("HTTP server closed");
-    });
+    server.close(() => console.log("HTTP server closed"));
     await pool.end();
     console.log("Database pool closed");
   } catch (err) {
     console.error("Error during shutdown:", err);
   }
-
   setTimeout(() => process.exit(0), 10000).unref();
 }
 
@@ -47,8 +43,16 @@ process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 // ── Start server ───────────────────────────────────────────────────────────
-const server = app.listen(port, () => {
+const server = app.listen(port, async () => {
   console.log({ port }, "Server listening");
+
+  // Cargar módulos habilitados después de que el servidor esté escuchando
+  try {
+    await loadModules(app);
+    console.log({}, "All modules loaded");
+  } catch (err) {
+    console.error({ err }, "Module loading encountered errors (server continues)");
+  }
 });
 
 export { app, server };

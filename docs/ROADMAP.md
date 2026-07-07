@@ -2,7 +2,7 @@
 
 > Estrategia incremental: un módulo a la vez, migraciones aditivas, sin tocar datos reales hasta aprobación.
 
-## Fase 0: Arquitectura base ← ESTAMOS AQUÍ
+## Fase 0: Arquitectura base ✅ COMPLETADA
 
 **Objetivo:** Monorepo compilando con Core + módulo radar portado estructuralmente.
 
@@ -12,12 +12,12 @@
 - [x] `docs/ARCHITECTURE.md` — ADRs de arquitectura
 - [x] `docs/ERD.md` — Modelo de datos unificado
 - [x] `docs/ROADMAP.md` — Este documento
-- [ ] `apps/api/` — Esqueleto del backend con Core + módulo radar
-- [ ] `apps/web/` — Esqueleto del frontend
-- [ ] `lib/db/` — Schemas Drizzle del Core unificado
-- [ ] `modules.config.ts` — Registro de módulos
-- [ ] `.env.example` consolidado
-- [ ] `README.md` raíz
+- [x] `apps/api/` — Esqueleto del backend con Core + módulo radar
+- [x] `apps/web/` — Esqueleto del frontend
+- [x] `lib/db/` — Schemas Drizzle del Core unificado
+- [x] `modules.config.ts` — Registro de módulos
+- [x] `.env.example` consolidado
+- [x] `README.md` raíz
 
 **Qué se copia de `_referencia/radar`:**
 - `lib/db/` → Schemas Drizzle (adaptados a esquemas PG: core + radar)
@@ -31,7 +31,7 @@
 
 ---
 
-## Fase 1: Portar módulo radar (completo)
+## Fase 1: Portar módulo radar (completo) ✅ COMPLETADA
 
 **Objetivo:** El módulo radar funciona en la nueva arquitectura.
 

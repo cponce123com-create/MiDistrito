@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import router from "./routes/index";
 
 const app: Express = express();
 
@@ -42,13 +41,11 @@ app.use(cookieParser());
 // Logging
 if (process.env.NODE_ENV !== "test") {
   app.use(pinoHttp({ level: process.env.LOG_LEVEL || "info" }));
-} else {
-  // Silent in tests
 }
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
@@ -60,16 +57,5 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// ── Module loader (Fase 2) ─────────────────────────────────────────────────
-// Los módulos se cargarán dinámicamente desde modules.config.ts
-// import { modules } from "../../modules.config";
-// for (const mod of modules) {
-//   if (mod.enabled) {
-//     const { registerRoutes } = await import(mod.backend);
-//     registerRoutes(app);
-//   }
-// }
-
-app.use("/api", router);
-
+// ── Module loader (se ejecuta después de export, en index.ts) ─────────────
 export default app;
