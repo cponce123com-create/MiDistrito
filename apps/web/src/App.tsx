@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./core/AuthContext";
 import { DistrictProvider } from "./core/DistrictContext";
 import { radarRoutes } from "./modules/radar/routes";
+import { newsRoutes } from "./modules/news/routes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,9 @@ export default function App() {
               <Suspense fallback={<Loading />}>
                 <Routes>
                   {radarRoutes.map((route) => (
+                    <Route key={route.path} path={route.path!} element={route.element} />
+                  ))}
+                  {newsRoutes.map((route) => (
                     <Route key={route.path} path={route.path!} element={route.element} />
                   ))}
                   <Route path="*" element={<Navigate to="/" replace />} />

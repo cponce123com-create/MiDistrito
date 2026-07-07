@@ -23,10 +23,11 @@ const modules: ModuleConfig[] = [
   },
   {
     name: "news",
-    description: "Noticias y comunicados municipales",
-    enabled: false,
+    description: "Noticias y comunicados municipales con scraping RSS y publicación Telegram",
+    enabled: true,
     permissions: [
       "news:article.read", "news:article.create", "news:article.update", "news:article.delete",
+      "news:article.approve", "news:source.manage",
     ],
     dependencies: [],
   },

@@ -1,14 +1,14 @@
 # ERD — Modelo de datos unificado MiDistrito
 
-> Schemas PostgreSQL por dominio: `core`, `radar`, `news`, `market`
+> Schemas PostgreSQL por dominio: todos en schema `public` con prefijo (`core_`, `radar_`, `news_`, `market_`)
 
 ## Schema `core` — Tablas compartidas
 
-### `core.users` — Tabla de usuarios ÚNICA (unificada)
+### `core_users` — Tabla de usuarios ÚNICA (unificada)
 
 ```sql
 -- Roles combinados de Radar (cívico), Camila (comercial) y Mercanto (verificado)
-CREATE TYPE core.user_role AS ENUM (
+CREATE TYPE core_user_role AS ENUM (
   'super_admin',     -- Global (Radar super_admin)
   'municipal',       -- Municipalidad por distrito (Radar municipal)
   'moderator',       -- Moderador por distrito (Radar moderator)
@@ -54,7 +54,7 @@ CREATE TYPE core.user_role AS ENUM (
 | `created_at` | `timestamp DEFAULT now()` | Todos | |
 | `updated_at` | `timestamp DEFAULT now()` | Mercanto | |
 
-### `core.districts` — Catálogo de distritos
+### `core_districts` — Catálogo de distritos
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -70,7 +70,7 @@ CREATE TYPE core.user_role AS ENUM (
 | `is_active` | `boolean DEFAULT true` | |
 | `created_at` | `timestamp` | |
 
-### `core.organizations` — Organizaciones (municipalidades, comisarías)
+### `core_organizations` — Organizaciones (municipalidades, comisarías)
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -81,7 +81,7 @@ CREATE TYPE core.user_role AS ENUM (
 | `is_active` | `boolean DEFAULT true` | |
 | `created_at` | `timestamp` | |
 
-### `core.refresh_tokens`
+### `core_refresh_tokens`
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -92,7 +92,7 @@ CREATE TYPE core.user_role AS ENUM (
 | `expires_at` | `timestamp NOT NULL` | 30 días |
 | `created_at` | `timestamp DEFAULT now()` | |
 
-### `core.user_consents` — Ley 29733
+### `core_user_consents` — Ley 29733
 
 | Columna | Tipo |
 |---------|------|
@@ -104,7 +104,7 @@ CREATE TYPE core.user_role AS ENUM (
 | `user_agent` | `text` |
 | `created_at` | `timestamp DEFAULT now()` |
 
-### `core.notifications`
+### `core_notifications`
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -119,7 +119,7 @@ CREATE TYPE core.user_role AS ENUM (
 | `is_read` | `boolean DEFAULT false` | |
 | `created_at` | `timestamp DEFAULT now()` | |
 
-### `core.audit_logs`
+### `core_audit_logs`
 
 | Columna | Tipo |
 |---------|------|
@@ -139,7 +139,7 @@ CREATE TYPE core.user_role AS ENUM (
 
 Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 
-### `radar.reports`
+### `radar_reports`
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -166,7 +166,7 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 | `created_at` | `timestamp` | |
 | `updated_at` | `timestamp` | |
 
-### `radar.panic_alerts`
+### `radar_panic_alerts`
 
 | Columna | Tipo |
 |---------|------|
@@ -180,7 +180,7 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 | `is_active` | `boolean DEFAULT true` |
 | `created_at` | `timestamp` |
 
-### `radar.missing_persons`
+### `radar_missing_persons`
 
 | Columna | Tipo |
 |---------|------|
@@ -198,7 +198,7 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 | `reported_by` | `text NOT NULL` |
 | `created_at` | `timestamp` |
 
-### `radar.report_messages`
+### `radar_report_messages`
 
 | Columna | Tipo |
 |---------|------|
@@ -213,7 +213,7 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 | `read_at` | `timestamp` |
 | `created_at` | `timestamp` |
 
-### `radar.ad_slots`
+### `radar_ad_slots`
 
 | Columna | Tipo |
 |---------|------|
@@ -227,7 +227,7 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 | `sector` | `text` |
 | `created_at` | `timestamp` |
 
-### `radar.categories` — Categorías dinámicas de reportes
+### `radar_categories` — Categorías dinámicas de reportes
 
 | Columna | Tipo |
 |---------|------|
@@ -240,7 +240,7 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 | `sort_order` | `integer DEFAULT 0` |
 | `created_at` | `timestamp` |
 
-### `radar.departments` — Departamentos municipales
+### `radar_departments` — Departamentos municipales
 
 | Columna | Tipo |
 |---------|------|
@@ -257,29 +257,29 @@ Todas las tablas tienen `district_id FK → core.districts` obligatorio.
 
 | Tabla | Columnas clave |
 |-------|---------------|
-| `news.sources` | id, name, type (rss/web/telegram), config JSONB, district_id |
-| `news.articles` | id, source_id, title, body, url, image_url, published_at, district_id |
-| `news.categories` | id, name, slug, color |
-| `news.telegram_channels` | id, chat_id, name, is_active |
-| `news.approval_queue` | id, article_id, status, reviewed_by |
-| `news.publication_logs` | id, article_id, channel, published_at |
+| `news_sources` | id, name, type (rss/web/telegram), config JSONB, district_id |
+| `news_articles` | id, source_id, title, body, url, image_url, published_at, district_id |
+| `news_categories` | id, name, slug, color |
+| `news_telegram_channels` | id, chat_id, name, is_active |
+| `news_approval_queue` | id, article_id, status, reviewed_by |
+| `news_publication_logs` | id, article_id, channel, published_at |
 
 ## Schema `market` — Módulo Marketplace (Fase 3)
 
 | Tabla | Columnas clave |
 |-------|---------------|
-| `market.stores` | id (text UUID), user_id, business_name, document_type, document_number, district_id, location, lat/lng, is_active |
-| `market.categories` | id, name, slug, icon, parent_id |
-| `market.products` | id, store_id, category_id, name, description, price, stock, image_url, district_id |
-| `market.product_variants` | id, product_id, name, price, stock |
-| `market.product_reviews` | id, product_id, user_id, rating, comment |
-| `market.product_images` | id, product_id, image_url, sort_order |
-| `market.offers` | id, product_id, discount, start_date, end_date |
-| `market.favorites` | id, user_id, product_id |
-| `market.orders` | id, store_id, buyer_id, status, total |
-| `market.order_items` | id, order_id, product_id, quantity, unit_price |
-| `market.clients` | id, store_id, name, phone, email |
-| `market.inventory` | id, product_id, quantity, type, reference |
+| `market_stores` | id (text UUID), user_id, business_name, document_type, document_number, district_id, location, lat/lng, is_active |
+| `market_categories` | id, name, slug, icon, parent_id |
+| `market_products` | id, store_id, category_id, name, description, price, stock, image_url, district_id |
+| `market_product_variants` | id, product_id, name, price, stock |
+| `market_product_reviews` | id, product_id, user_id, rating, comment |
+| `market_product_images` | id, product_id, image_url, sort_order |
+| `market_offers` | id, product_id, discount, start_date, end_date |
+| `market_favorites` | id, user_id, product_id |
+| `market_orders` | id, store_id, buyer_id, status, total |
+| `market_order_items` | id, order_id, product_id, quantity, unit_price |
+| `market_clients` | id, store_id, name, phone, email |
+| `market_inventory` | id, product_id, quantity, type, reference |
 
 ---
 

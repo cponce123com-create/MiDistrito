@@ -134,28 +134,37 @@ El CORE vive en `apps/api/src/core/` y expone servicios que TODO módulo consume
 | `ConfigService` | Configuración global y por distrito |
 | `EventEmitter` | Event-emitter en proceso para comunicación entre módulos |
 
-## ADR-007: Base de datos — Schemas por dominio en un solo Neon PostgreSQL
+## ADR-007: Base de datos — Nombres prefijados en schema `public`
 
-Usaremos schemas de PostgreSQL para separar dominios dentro de la misma base:
+Originalmente se planearon schemas PostgreSQL nativos (`core`, `radar`, `news`, `market`)
+para separar dominios. Durante la implementación se optó por una convención más simple:
+**schema `public` con nombres de tabla PREFIJADOS por dominio.**
 
+Esta decisión se tomó porque:
+- Drizzle maneja mejor el tipado con nombres planos que con `pgSchema`
+- Las migraciones son más legibles sin calificar schemas
+- Neon/PostgreSQL no da beneficio real de aislamiento con schemas separados cuando
+  el multi-tenant se maneja en capa de aplicación
+
+**Convención:**
 ```sql
-core    → auth, usuarios, distritos, organizaciones, auditoría
-radar   → reportes, alertas de pánico, personas desaparecidas
-news    → noticias, fuentes, canales (Fase 2)
-market  → tiendas, productos, ventas, restaurantes (Fase 3)
+core_*   → core_users, core_districts, core_notifications, etc.
+radar_*  → radar_reports, radar_panic_alerts, radar_missing_persons, etc.
+news_*   → news_articles, news_sources, news_categories, etc.  (Fase 2)
+market_* → market_stores, market_products, market_orders, etc.  (Fase 3)
 ```
 
 **En Drizzle:**
 ```typescript
-// lib/db/src/schema/core/users.ts
-import { pgSchema } from "drizzle-orm/pg-core";
-export const core = pgSchema("core");
-export const usersTable = core.table("users", { ... });
+import { pgTable, ... } from "drizzle-orm/pg-core";
+export const usersTable = pgTable("core_users", { ... });
+export const reportsTable = pgTable("radar_reports", { ... });
 ```
 
 **Multi-distrito en capa de aplicación:**
 - `district_id` es FK obligatorio en TODA tabla de negocio
-- NO usamos RLS de PostgreSQL (Row-Level Security). Razón: Radar lo intentó y lo abandonó (ver app.ts — "BUG-2: RLS por variables de sesión abandonado"). La defensa es en capa de aplicación: toda query filtra por `districtId` del JWT del usuario autenticado. Las tablas tienen `WHERE district_id = ?` siempre.
+- NO usamos RLS de PostgreSQL. Razón: Radar lo intentó y lo abandonó.
+- La defensa es en capa de aplicación: toda query filtra por `districtId`.
 - Un middleware `checkTenant` inyecta el filtro automáticamente.
 
 ## ADR-008: RBAC granular (permisos por acción)
@@ -238,3 +247,18 @@ Cada fase de portado:
 4. Portar frontend (componentes + páginas)
 5. Tests
 6. Merge a `main` y borrar `_referencia/<modulo>` correspondiente
+
+## ADR-014: Module loader — Estrategia dev/prod
+
+El cargador de módulos (`core/moduleLoader.ts`) debe funcionar tanto en desarrollo
+(.ts con tsx) como en producción (.js compilado en dist/).
+
+**Estrategia:** `resolveModulePath()` prueba candidatos en orden:
+1. `modules/<name>/backend/index.ts` — desarrollo con tsx
+2. `modules/<name>/backend/dist/index.js` — módulos compilados individualmente
+3. `dist/modules/<name>/backend/index.js` — build monolítico del monorepo
+
+**En Render (producción):** El build script debe compilar los módulos habilitados.
+Se recomienda un `pnpm build:modules` que ejecute `tsc` sobre cada módulo enabled,
+o alternativamente usar `tsx` en producción si el free tier lo permite (es más
+simple y evita duplicar config de compilación).

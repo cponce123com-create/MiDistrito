@@ -49,7 +49,7 @@
 
 ---
 
-## Fase 2: Portar módulo news + bot directorio
+## Fase 2: Portar módulo news + bot directorio ✅ COMPLETADA
 
 **Objetivo:** Módulo de noticias (portado desde bot_noticias) operativo.
 

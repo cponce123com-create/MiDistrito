@@ -68,7 +68,7 @@ export const messageChannelEnum = pgEnum("radar_message_channel", [
 
 // ── Tablas del Módulo Radar ────────────────────────────────────────────────
 
-export const categoriesTable = pgTable("radar_categories", {
+export const reportCategoriesTable = pgTable("radar_categories", {
   id: serial("id").primaryKey(),
   slug: text("slug").notNull().unique(),
   label: text("label").notNull(),

@@ -5,7 +5,7 @@
  */
 import { Router, type IRouter } from "express";
 import { db } from "@midistrito/db";
-import { categoriesTable } from "@midistrito/db/schema";
+import { reportCategoriesTable } from "@midistrito/db/schema";
 import { eq } from "drizzle-orm";
 
 const router: IRouter = Router();
@@ -15,9 +15,9 @@ router.get("/", async (_req, res) => {
   try {
     const categories = await db
       .select()
-      .from(categoriesTable)
-      .where(eq(categoriesTable.isActive, true))
-      .orderBy(categoriesTable.sortOrder);
+      .from(reportCategoriesTable)
+      .where(eq(reportCategoriesTable.isActive, true))
+      .orderBy(reportCategoriesTable.sortOrder);
 
     return res.json({ categories });
   } catch (err) {

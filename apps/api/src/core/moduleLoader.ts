@@ -1,20 +1,36 @@
 import type { Express } from "express";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { logger } from "../lib/logger";
 import { events } from "./events";
 
 // ── Configuración de módulos ───────────────────────────────────────────────
-interface ModuleEntry {
-  name: string;
-  enabled: boolean;
-}
+interface ModuleEntry { name: string; enabled: boolean; }
 
 const modules: ModuleEntry[] = [
   { name: "radar", enabled: true },
-  { name: "news", enabled: false },
+  { name: "news", enabled: true },
   { name: "marketplace", enabled: false },
 ];
+
+/**
+ * Resuelve la ruta al entry point del módulo, soportando tanto desarrollo (.ts)
+ * como producción (.js compilado).
+ */
+function resolveModulePath(moduleName: string): string | null {
+  const __filename = fileURLToPath(import.meta.url);
+  const projectRoot = path.resolve(path.dirname(__filename), "../../../..");
+  const candidates = [
+    path.join(projectRoot, "modules", moduleName, "backend", "index.ts"),
+    path.join(projectRoot, "modules", moduleName, "backend", "dist", "index.js"),
+    path.join(projectRoot, "dist", "modules", moduleName, "backend", "index.js"),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return null;
+}
 
 /**
  * Carga los módulos habilitados según modules.config.ts.
@@ -22,25 +38,21 @@ const modules: ModuleEntry[] = [
 export async function loadModules(app: Express): Promise<void> {
   const enabledModules = modules.filter((m) => m.enabled);
 
-  // Calcular raíz del proyecto desde la ubicación de este archivo
-  const __filename = fileURLToPath(import.meta.url);
-  const projectRoot = path.resolve(path.dirname(__filename), "../../../..");
-  const modulesDir = path.join(projectRoot, "modules");
-
   for (const mod of enabledModules) {
     try {
-      const modPath = path.join(modulesDir, mod.name, "backend", "index.ts");
+      const modPath = resolveModulePath(mod.name);
+      if (!modPath) {
+        logger.warn({ module: mod.name }, "Module entry point not found, skipping");
+        continue;
+      }
       const modUrl = pathToFileURL(modPath).href;
-
       const { default: init } = await import(modUrl) as {
         default: (app: Express) => void | Promise<void>;
       };
-
       if (typeof init !== "function") {
         logger.warn({ module: mod.name }, "Module does not export initModule function");
         continue;
       }
-
       await init(app);
       logger.info({ module: mod.name }, "Module loaded successfully");
     } catch (err) {
