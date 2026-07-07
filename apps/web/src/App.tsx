@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./core/AuthContext";
@@ -6,16 +6,23 @@ import { DistrictProvider } from "./core/DistrictContext";
 import { radarRoutes } from "./modules/radar/routes";
 import { newsRoutes } from "./modules/news/routes";
 import { marketplaceRoutes } from "./modules/marketplace/routes";
+import { tourismRoutes } from "./modules/tourism/routes";
+import { eventsRoutes } from "./modules/events/routes";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: 1, staleTime: 30000 },
-  },
+  defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
 });
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
+      <nav className="flex gap-2 p-3 bg-gray-900 overflow-x-auto text-sm">
+        <a href="/" className="px-2 py-1 rounded hover:bg-gray-700">Inicio</a>
+        <a href="/noticias" className="px-2 py-1 rounded hover:bg-gray-700">Noticias</a>
+        <a href="/marketplace" className="px-2 py-1 rounded hover:bg-gray-700">Tiendas</a>
+        <a href="/turismo" className="px-2 py-1 rounded hover:bg-gray-700">Turismo</a>
+        <a href="/eventos" className="px-2 py-1 rounded hover:bg-gray-700">Eventos</a>
+      </nav>
       <main className="max-w-lg mx-auto">{children}</main>
     </div>
   );
@@ -30,6 +37,7 @@ function Loading() {
 }
 
 export default function App() {
+  const allRoutes = [...radarRoutes, ...newsRoutes, ...marketplaceRoutes, ...tourismRoutes, ...eventsRoutes];
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
@@ -38,13 +46,7 @@ export default function App() {
             <Layout>
               <Suspense fallback={<Loading />}>
                 <Routes>
-                  {radarRoutes.map((route) => (
-                    <Route key={route.path} path={route.path!} element={route.element} />
-                  ))}
-                  {newsRoutes.map((route) => (
-                    <Route key={route.path} path={route.path!} element={route.element} />
-                  ))}
-                  {marketplaceRoutes.map((route) => (
+                  {allRoutes.map((route) => (
                     <Route key={route.path} path={route.path!} element={route.element} />
                   ))}
                   <Route path="*" element={<Navigate to="/" replace />} />
