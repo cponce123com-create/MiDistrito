@@ -66,8 +66,6 @@ async function seed() {
       role: "super_admin",
       districtId,
       isActive: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     } as any).returning();
     console.log(`✅ Super admin creado (id=${admin.id}, email=${adminEmail})`);
   }
