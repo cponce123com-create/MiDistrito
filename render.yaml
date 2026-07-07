@@ -14,7 +14,7 @@ services:
       pnpm install --no-frozen-lockfile
       pnpm run build
     startCommand: |
-      pnpm --filter @midistrito/api run migrate &&
+      pnpm --filter @midistrito/db run migrate &&
       pnpm --filter @midistrito/api run start
     healthCheckPath: /api/health
     envVars:
