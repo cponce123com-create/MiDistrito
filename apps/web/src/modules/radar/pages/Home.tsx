@@ -1,5 +1,73 @@
 import { useDistrict } from "../../../core/DistrictContext";
 import { useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix Leaflet marker icon path issue with bundlers
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
+
+const sosIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-red.png",
+  iconRetinaUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-red.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  shadowSize: [41, 41],
+});
+
+const warningIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-orange.png",
+  iconRetinaUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-orange.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  shadowSize: [41, 41],
+});
+
+const defaultIcon = new L.Icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-green.png",
+  iconRetinaUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-green.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  shadowSize: [41, 41],
+});
+
+const incidents = [
+  {
+    id: 1,
+    title: "Robo en Jr. Progreso",
+    lat: -11.123,
+    lng: -75.33,
+    type: "danger",
+    info: "8 vecinos confirmaron · hace 15 min",
+  },
+  {
+    id: 2,
+    title: "Bache en Av. Principal",
+    lat: -11.119,
+    lng: -75.328,
+    type: "warning",
+    info: "Reportado hace 2h",
+  },
+  {
+    id: 3,
+    title: "Feria gastronómica",
+    lat: -11.126,
+    lng: -75.332,
+    type: "default",
+    info: "Este fin de semana",
+  },
+];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -105,42 +173,41 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Near you */}
+      {/* Near you — Map */}
       <div style={{ marginTop: 24 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <span style={{ fontSize: 16, fontWeight: 700, color: "var(--md-text)" }}>Cerca de ti</span>
-          <a href="#" style={{ fontSize: 13, fontWeight: 600, color: "var(--md-info)" }}>Ver mapa</a>
+          <a href="#" style={{ fontSize: 13, fontWeight: 600, color: "var(--md-info)" }}>Ver mapa completo</a>
         </div>
         <div className="card" style={{ overflow: "hidden" }}>
-          <div
-            style={{
-              height: 110,
-              position: "relative",
-              background: "repeating-linear-gradient(135deg, #EAEFEC 0px 11px, #E3E9E5 11px 22px)",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute", top: 34, left: 70, width: 24, height: 24,
-                borderRadius: "50% 50% 50% 0", transform: "rotate(-45deg)",
-                background: "var(--md-danger)", boxShadow: "0 3px 6px rgba(0,0,0,.25)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute", top: 56, left: 180, width: 20, height: 20,
-                borderRadius: "50% 50% 50% 0", transform: "rotate(-45deg)",
-                background: "var(--md-warning)", boxShadow: "0 3px 6px rgba(0,0,0,.25)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute", top: 26, left: 250, width: 20, height: 20,
-                borderRadius: "50% 50% 50% 0", transform: "rotate(-45deg)",
-                background: "var(--md-primary)", boxShadow: "0 3px 6px rgba(0,0,0,.25)",
-              }}
-            />
+          <div style={{ height: 200, width: "100%" }}>
+            <MapContainer
+              center={[-11.122, -75.33]}
+              zoom={14}
+              scrollWheelZoom={false}
+              style={{ height: "100%", width: "100%" }}
+              zoomControl={false}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {incidents.map((inc) => (
+                <Marker
+                  key={inc.id}
+                  position={[inc.lat, inc.lng]}
+                  icon={inc.type === "danger" ? sosIcon : inc.type === "warning" ? warningIcon : defaultIcon}
+                >
+                  <Popup>
+                    <strong>{inc.title}</strong>
+                    <br />
+                    <span style={{ fontSize: 12 }}>{inc.info}</span>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
           </div>
+          {/* Featured incident below map */}
           <div style={{ padding: 14, display: "flex", gap: 12, alignItems: "center" }}>
             <div
               style={{
