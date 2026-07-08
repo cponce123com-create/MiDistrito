@@ -15,36 +15,54 @@ export default function NewsList() {
       .catch(() => {});
   }, [currentDistrictId]);
 
+  const statusChip = (status: string) => {
+    const map: Record<string, string> = {
+      published: "chip chip-resuelto",
+      pending_approval: "chip chip-precaución",
+      draft: "chip chip-info",
+      rejected: "chip chip-alerta",
+    };
+    return map[status] || "chip chip-info";
+  };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Noticias — {currentDistrict}</h1>
+    <div>
+      <h2 style={{ fontWeight: 700, fontSize: 20, margin: "0 0 18px 0", color: "var(--md-text)" }}>
+        Noticias — {currentDistrict}
+      </h2>
       {articles.length === 0 ? (
-        <p className="text-gray-400">No hay noticias aún.</p>
+        <p style={{ color: "var(--md-muted)", fontSize: 14 }}>No hay noticias aún.</p>
       ) : (
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {articles.map((a: any) => (
-            <div key={a.id} className="p-3 bg-gray-800 rounded">
-              <h2 className="font-semibold">{a.title}</h2>
-              <p className="text-sm text-gray-400 mt-1">
+            <div key={a.id} className="card" style={{ padding: 14 }}>
+              <h3 style={{ margin: "0 0 6px", fontWeight: 700, fontSize: 14, color: "var(--md-text)" }}>
+                {a.title}
+              </h3>
+              <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--md-muted)", lineHeight: 1.5 }}>
                 {a.summary?.slice(0, 150)}...
               </p>
-              <div className="flex gap-2 mt-2 text-xs text-gray-500">
+              <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 12, color: "var(--md-muted)" }}>
                 <span>{a.author || "Sin autor"}</span>
                 <span>•</span>
-                <span className={`px-1.5 py-0.5 rounded ${
-                  a.status === "published" ? "bg-green-900 text-green-300" :
-                  a.status === "pending_approval" ? "bg-yellow-900 text-yellow-300" :
-                  "bg-gray-700"
-                }`}>{a.status}</span>
+                <span className={statusChip(a.status)} style={{ fontSize: 11, padding: "3px 8px" }}>
+                  {a.status === "published" ? "Publicado" :
+                   a.status === "pending_approval" ? "Pendiente" :
+                   a.status === "draft" ? "Borrador" : a.status}
+                </span>
               </div>
             </div>
           ))}
         </div>
       )}
       {user && ["admin", "super_admin", "editor"].includes(user.role) && (
-        <div className="mt-4 flex gap-2">
-          <a href="/noticias/fuentes" className="px-3 py-1.5 bg-blue-600 rounded text-sm">Fuentes</a>
-          <a href="/noticias/aprobar" className="px-3 py-1.5 bg-yellow-600 rounded text-sm">Aprobar</a>
+        <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
+          <a href="/noticias/fuentes" className="btn-secondary" style={{ textDecoration: "none", fontSize: 13 }}>
+            Fuentes
+          </a>
+          <a href="/noticias/aprobar" className="btn-primary" style={{ textDecoration: "none", fontSize: 13 }}>
+            Aprobar
+          </a>
         </div>
       )}
     </div>

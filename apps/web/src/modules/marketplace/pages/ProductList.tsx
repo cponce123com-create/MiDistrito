@@ -15,29 +15,39 @@ export default function ProductList() {
   }, [currentDistrictId]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Marketplace — {currentDistrict}</h1>
+    <div>
+      <h2 style={{ fontWeight: 700, fontSize: 20, margin: "0 0 18px 0", color: "var(--md-text)" }}>
+        Marketplace — {currentDistrict}
+      </h2>
+
       {/* Stores carousel */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-2">Tiendas</h2>
-        <div className="flex gap-3 overflow-x-auto pb-2">
+      <div style={{ marginBottom: 22 }}>
+        <h3 style={{ margin: "0 0 10px", fontSize: 15, fontWeight: 700, color: "var(--md-text)" }}>Tiendas</h3>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
           {stores.map((s: any) => (
-            <div key={s.id} className="min-w-[140px] p-3 bg-gray-800 rounded flex-shrink-0">
-              <p className="font-medium text-sm">{s.name}</p>
-              <p className="text-xs text-gray-400">{s.businessType}</p>
+            <div key={s.id} className="card" style={{ minWidth: 140, padding: 12, flexShrink: 0 }}>
+              <p style={{ margin: 0, fontWeight: 600, fontSize: 13, color: "var(--md-text)" }}>{s.name}</p>
+              <p style={{ margin: "3px 0 0", fontSize: 11, color: "var(--md-muted)" }}>{s.businessType}</p>
             </div>
           ))}
         </div>
       </div>
+
       {/* Products grid */}
-      <div className="grid grid-cols-2 gap-3">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {products.map((p: any) => (
-          <div key={p.id} className="p-3 bg-gray-800 rounded">
-            {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="w-full h-24 object-cover rounded mb-2" />}
-            <p className="font-medium text-sm">{p.name}</p>
-            <p className="text-blue-400 font-bold">S/ {p.price}</p>
-            {p.salePrice && <p className="text-green-400 text-xs">Oferta: S/ {p.salePrice}</p>}
-            <p className="text-xs text-gray-500 mt-1">{p.unit}</p>
+          <div key={p.id} className="card" style={{ overflow: "hidden" }}>
+            {p.imageUrl && (
+              <img src={p.imageUrl} alt={p.name} style={{ width: "100%", height: 100, objectFit: "cover", display: "block" }} />
+            )}
+            <div style={{ padding: 10 }}>
+              <p style={{ margin: "0 0 4px", fontWeight: 600, fontSize: 13, color: "var(--md-text)" }}>{p.name}</p>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "var(--md-primary)" }}>S/ {p.price}</p>
+              {p.salePrice && (
+                <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--md-success)" }}>Oferta: S/ {p.salePrice}</p>
+              )}
+              <p style={{ margin: "4px 0 0", fontSize: 11, color: "var(--md-muted)" }}>{p.unit}</p>
+            </div>
           </div>
         ))}
       </div>

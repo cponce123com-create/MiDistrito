@@ -7,6 +7,8 @@ import { useAuth } from "./core/AuthContext";
 import { radarRoutes } from "./modules/radar/routes";
 import { newsRoutes } from "./modules/news/routes";
 import { marketplaceRoutes } from "./modules/marketplace/routes";
+import { eventsRoutes } from "./modules/events/routes";
+import { tourismRoutes } from "./modules/tourism/routes";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -290,7 +292,7 @@ function Layout({ children }: { children: React.ReactNode }) {
 
 /* ---------- App ---------- */
 export default function App() {
-  const allRoutes = [...radarRoutes, ...newsRoutes, ...marketplaceRoutes];
+  const allRoutes = [...radarRoutes, ...newsRoutes, ...marketplaceRoutes, ...eventsRoutes, ...tourismRoutes];
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>

@@ -29,19 +29,29 @@ export default function ApprovalQueue() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Cola de aprobación</h1>
+    <div>
+      <h2 style={{ fontWeight: 700, fontSize: 20, margin: "0 0 18px 0", color: "var(--md-text)" }}>
+        Cola de aprobación
+      </h2>
       {pending.length === 0 ? (
-        <p className="text-gray-400">No hay artículos pendientes.</p>
+        <p style={{ color: "var(--md-muted)", fontSize: 14 }}>No hay artículos pendientes.</p>
       ) : (
-        <div className="space-y-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {pending.map((a: any) => (
-            <div key={a.id} className="p-3 bg-gray-800 rounded">
-              <h2 className="font-semibold">{a.title}</h2>
-              <p className="text-sm text-gray-400 mt-1">{a.summary?.slice(0, 100)}...</p>
-              <div className="flex gap-2 mt-2">
-                <button onClick={() => handleApprove(a.id)} className="px-3 py-1 bg-green-600 rounded text-sm">Aprobar</button>
-                <button onClick={() => handleReject(a.id)} className="px-3 py-1 bg-red-600 rounded text-sm">Rechazar</button>
+            <div key={a.id} className="card" style={{ padding: 14 }}>
+              <h3 style={{ margin: "0 0 6px", fontWeight: 700, fontSize: 14, color: "var(--md-text)" }}>
+                {a.title}
+              </h3>
+              <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--md-muted)" }}>
+                {a.summary?.slice(0, 100)}...
+              </p>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={() => handleApprove(a.id)} className="btn-primary" style={{ flex: 1, fontSize: 13 }}>
+                  Aprobar
+                </button>
+                <button onClick={() => handleReject(a.id)} className="btn-danger" style={{ flex: 1, fontSize: 13 }}>
+                  Rechazar
+                </button>
               </div>
             </div>
           ))}

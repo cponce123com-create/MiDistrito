@@ -19,31 +19,40 @@ export default function EventsList() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Eventos — {currentDistrict}</h1>
+      <h1 className="text-2xl font-bold mb-4" style={{ color: "var(--md-text)" }}>Eventos — {currentDistrict}</h1>
       <div className="flex gap-2 overflow-x-auto pb-3 mb-4">
-        <button onClick={() => setFilter("")} className={`px-3 py-1 rounded-full text-sm ${!filter ? "bg-blue-600" : "bg-gray-700"}`}>Todos</button>
+        <button
+          onClick={() => setFilter("")}
+          className="btn-secondary"
+          style={!filter ? { background: "var(--md-primary)", color: "#fff", borderColor: "var(--md-primary)" } : {}}
+        >Todos</button>
         {categories.map(c => (
-          <button key={c} onClick={() => setFilter(c)} className={`px-3 py-1 rounded-full text-sm capitalize ${filter === c ? "bg-blue-600" : "bg-gray-700"}`}>{c}</button>
+          <button
+            key={c}
+            onClick={() => setFilter(c)}
+            className="btn-secondary"
+            style={filter === c ? { background: "var(--md-primary)", color: "#fff", borderColor: "var(--md-primary)" } : {}}
+          >{c}</button>
         ))}
       </div>
       <div className="space-y-3">
         {events.map((e: any) => (
-          <Link key={e.id} to={`/eventos/${e.id}`} className="block p-3 bg-gray-800 rounded">
+          <Link key={e.id} to={`/eventos/${e.id}`} className="card block" style={{ padding: 16, display: "block" }}>
             {e.imageUrl && <img src={e.imageUrl} alt={e.title} className="w-full h-24 object-cover rounded mb-2" />}
             <div className="flex items-start gap-3">
               <div className="text-center min-w-[48px]">
-                <div className="text-xl font-bold text-blue-400">{new Date(e.startDate).getDate()}</div>
-                <div className="text-xs text-gray-400">{new Date(e.startDate).toLocaleDateString("es-PE", { month: "short" })}</div>
+                <div className="text-xl font-bold" style={{ color: "var(--md-primary)" }}>{new Date(e.startDate).getDate()}</div>
+                <div className="text-xs" style={{ color: "var(--md-muted)" }}>{new Date(e.startDate).toLocaleDateString("es-PE", { month: "short" })}</div>
               </div>
               <div className="flex-1">
-                <h2 className="font-semibold">{e.title}</h2>
-                <p className="text-sm text-gray-400">{e.shortDescription?.slice(0, 80)}...</p>
-                <span className="text-xs px-1.5 py-0.5 bg-gray-700 rounded capitalize mt-1 inline-block">{e.category}</span>
+                <h2 className="font-semibold" style={{ color: "var(--md-text)" }}>{e.title}</h2>
+                <p className="text-sm" style={{ color: "var(--md-muted)" }}>{e.shortDescription?.slice(0, 80)}...</p>
+                <span className="chip chip-info mt-1 inline-block">{e.category}</span>
               </div>
             </div>
           </Link>
         ))}
-        {events.length === 0 && <p className="text-gray-400">No hay eventos próximos.</p>}
+        {events.length === 0 && <p style={{ color: "var(--md-muted)" }}>No hay eventos próximos.</p>}
       </div>
     </div>
   );

@@ -16,19 +16,24 @@ export default function Sources() {
   }, [currentDistrictId]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Fuentes de noticias</h1>
+    <div>
+      <h2 style={{ fontWeight: 700, fontSize: 20, margin: "0 0 18px 0", color: "var(--md-text)" }}>
+        Fuentes de noticias
+      </h2>
       {sources.length === 0 ? (
-        <p className="text-gray-400">No hay fuentes configuradas.</p>
+        <p style={{ color: "var(--md-muted)", fontSize: 14 }}>No hay fuentes configuradas.</p>
       ) : (
-        <div className="space-y-2">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {sources.map((s: any) => (
-            <div key={s.id} className="p-3 bg-gray-800 rounded flex justify-between items-center">
-              <div>
-                <span className="font-medium">{s.name}</span>
-                <span className="ml-2 text-xs px-1.5 py-0.5 bg-gray-700 rounded">{s.sourceType}</span>
+            <div key={s.id} className="card" style={{ padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                <span style={{ fontWeight: 600, fontSize: 14, color: "var(--md-text)" }}>{s.name}</span>
+                <span className="chip chip-info" style={{ fontSize: 11, padding: "3px 8px" }}>{s.sourceType}</span>
               </div>
-              <span className={`text-xs ${s.isActive ? "text-green-400" : "text-red-400"}`}>
+              <span
+                className={s.isActive ? "chip chip-resuelto" : "chip chip-alerta"}
+                style={{ fontSize: 11, padding: "3px 8px" }}
+              >
                 {s.isActive ? "Activa" : "Inactiva"}
               </span>
             </div>
