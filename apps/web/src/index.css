@@ -92,9 +92,32 @@ a:hover {
   to { opacity: 1; }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ============================================
    Utility Classes
    ============================================ */
+
+/* Skeleton shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--md-border) 25%, #f0f2f1 50%, var(--md-border) 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer { animation: none; }
+  .sos-float { animation: none; }
+  .live-pulse { animation: none; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
 
 /* Buttons */
 .btn-primary {
@@ -213,6 +236,15 @@ a:hover {
   border: 1px solid var(--md-border);
   border-radius: var(--radius-lg);
 }
+.card-hover {
+  background: var(--md-card);
+  border: 1px solid var(--md-border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.card-hover:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+}
 
 /* Metric Card */
 .metric-card {
@@ -220,6 +252,10 @@ a:hover {
   border: 1px solid var(--md-border);
   border-radius: var(--radius-lg);
   padding: 13px 12px;
+  transition: box-shadow 0.15s;
+}
+.metric-card:hover {
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
 }
 .metric-card .metric-icon {
   width: 30px;
@@ -250,7 +286,11 @@ a:hover {
   padding: 18px;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.quick-action:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
 }
 .quick-action:active {
   transform: scale(0.97);
