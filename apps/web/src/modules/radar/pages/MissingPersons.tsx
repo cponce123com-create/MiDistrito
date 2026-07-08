@@ -1,23 +1,13 @@
-import { useEffect, useState } from "react";
 import { useDistrict } from "../../../core/DistrictContext";
-
-interface MissingPerson {
-  id: number;
-  name: string;
-  age: number;
-  lastSeenAddress: string;
-  lastSeenDate: string;
-  clothing: string;
-  photoUrl?: string;
-  status: string; // "active" | "found"
-  createdAt: string;
-}
+import { useMissingPersons } from "../hooks/useRadarApi";
+import SkeletonCard from "../components/SkeletonCard";
+import EmptyState from "../components/EmptyState";
 
 function relativeTime(dateStr: string): string {
   const now = Date.now();
   const date = new Date(dateStr).getTime();
   const diffMs = now - date;
-  const diffMin = Math.floor(diffMs / 60000);
+  const diffMin = Math.floor(diffMs / 60_000);
   if (diffMin < 1) return "Ahora";
   if (diffMin < 60) return `Hace ${diffMin} min`;
   const diffH = Math.floor(diffMin / 60);
@@ -26,49 +16,32 @@ function relativeTime(dateStr: string): string {
   return `Hace ${diffD}d`;
 }
 
+// --------------- Component ---------------
 export default function MissingPersons() {
   const { currentDistrictId, currentDistrict } = useDistrict();
-  const [persons, setPersons] = useState<MissingPerson[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useMissingPersons();
 
-  useEffect(() => {
-    if (!currentDistrictId) return;
-    setLoading(true);
-    setError(null);
+  const persons = data?.persons ?? [];
 
-    fetch(`/api/radar/missing-persons?districtId=${currentDistrictId}`)
-      .then(r => r.json())
-      .then(data => setPersons(data.persons || []))
-      .catch(() => setError("No se pudieron cargar las personas desaparecidas."))
-      .finally(() => setLoading(false));
-  }, [currentDistrictId]);
-
+  // --------------- No district ---------------
   if (!currentDistrictId) {
     return (
-      <div style={{ color: "var(--md-muted)", textAlign: "center", padding: "40px 0" }}>
-        Selecciona un distrito para ver personas desaparecidas.
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--md-muted)", padding: "40px 0" }}>
-        <div className="animate-spin h-5 w-5 border-2 border-[var(--md-primary)] border-t-transparent rounded-full" />
-        Cargando personas desaparecidas...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="card" style={{ padding: 24, textAlign: "center", color: "var(--md-danger)" }}>
-        <p style={{ margin: 0 }}>{error}</p>
-        <button className="btn-secondary" style={{ marginTop: 12 }} onClick={() => window.location.reload()}>
-          Reintentar
-        </button>
-      </div>
+      <EmptyState
+        icon={
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+        }
+        title="Selecciona un distrito"
+        message="Para ver personas desaparecidas, selecciona un distrito desde el menú superior."
+      />
     );
   }
 
@@ -85,16 +58,48 @@ export default function MissingPersons() {
         </div>
       </div>
 
-      {persons.length === 0 ? (
-        <div className="card" style={{ padding: 40, textAlign: "center" }}>
-          <p style={{ margin: 0, fontSize: 14, color: "var(--md-muted)" }}>
-            No se reportan personas desaparecidas en {currentDistrict}.
-          </p>
+      {/* ---------- Loading ---------- */}
+      {isLoading && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <SkeletonCard count={4} variant="card" />
         </div>
-      ) : (
+      )}
+
+      {/* ---------- Error ---------- */}
+      {isError && !isLoading && (
+        <div className="card" style={{ padding: 24, textAlign: "center" }}>
+          <p style={{ margin: "0 0 8px", fontSize: 14, color: "var(--md-danger)" }}>
+            {error instanceof Error
+              ? error.message
+              : "No se pudieron cargar las personas desaparecidas."}
+          </p>
+          <button className="btn-secondary" style={{ marginTop: 8 }} onClick={() => refetch()}>
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {/* ---------- Empty ---------- */}
+      {!isLoading && !isError && persons.length === 0 && (
+        <EmptyState
+          icon={
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="8" r="4" />
+              <path d="M19 21a7 7 0 0 0-14 0" />
+              <path d="m17 8 4 2" />
+              <path d="m21 8-4 2" />
+            </svg>
+          }
+          title="No se reportan personas desaparecidas"
+          message={`No hay reportes de personas desaparecidas en ${currentDistrict}.`}
+        />
+      )}
+
+      {/* ---------- Data ---------- */}
+      {!isLoading && !isError && persons.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {persons.map((p) => (
-            <div key={p.id} className="card" style={{ overflow: "hidden" }}>
+            <div key={p.id} className="card-hover" style={{ overflow: "hidden" }}>
               <div
                 style={{
                   height: 100,
@@ -110,25 +115,23 @@ export default function MissingPersons() {
               >
                 {p.name.charAt(0)}
                 {p.status === "found" && (
-                  <span
-                    className="chip chip-resuelto"
-                    style={{ position: "absolute", top: 8, right: 8, fontSize: 11, padding: "3px 8px" }}
-                  >
+                  <span className="chip chip-resuelto" style={{ position: "absolute", top: 8, right: 8, fontSize: 11, padding: "3px 8px" }}>
                     Encontrado
                   </span>
                 )}
                 {p.status === "active" && (
-                  <span
-                    className="chip chip-alerta"
-                    style={{ position: "absolute", top: 8, right: 8, fontSize: 11, padding: "3px 8px" }}
-                  >
+                  <span className="chip chip-alerta" style={{ position: "absolute", top: 8, right: 8, fontSize: 11, padding: "3px 8px" }}>
                     Activo
                   </span>
                 )}
               </div>
               <div style={{ padding: 12 }}>
-                <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "var(--md-text)" }}>{p.name}</p>
-                <p style={{ margin: "2px 0", fontSize: 12, color: "var(--md-muted)" }}>{p.age} años</p>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "var(--md-text)" }}>
+                  {p.name}
+                </p>
+                <p style={{ margin: "2px 0", fontSize: 12, color: "var(--md-muted)" }}>
+                  {p.age} años
+                </p>
                 {p.clothing && (
                   <p style={{ margin: "2px 0", fontSize: 12, color: "var(--md-muted)" }}>
                     Vestimenta: {p.clothing}

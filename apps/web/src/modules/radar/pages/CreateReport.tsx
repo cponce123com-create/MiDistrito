@@ -1,14 +1,23 @@
 import { useState } from "react";
+import ImageUpload from "../components/ImageUpload";
 
 export default function CreateReport() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: enviar reporte
+    // TODO: enviar reporte con imageFile si existe
+    setIsSubmitting(true);
+    // Simular envío
+    await new Promise((r) => setTimeout(r, 1000));
+    setIsSubmitting(false);
   };
+
+  const isValid = title.trim() && category;
 
   return (
     <div>
@@ -82,8 +91,31 @@ export default function CreateReport() {
           </div>
         </div>
 
-        <button type="submit" className="btn-primary" style={{ marginTop: 4 }}>
-          Enviar reporte
+        {/* Image upload */}
+        <ImageUpload
+          onImageSelect={(file) => setImageFile(file)}
+          currentUrl={null}
+        />
+
+        <button
+          type="submit"
+          className="btn-primary"
+          style={{
+            marginTop: 4,
+            opacity: isValid ? 1 : 0.6,
+            cursor: isValid ? "pointer" : "not-allowed",
+            transition: "transform 0.1s, opacity 0.15s",
+          }}
+          disabled={!isValid || isSubmitting}
+        >
+          {isSubmitting ? (
+            <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+              Enviando...
+            </span>
+          ) : (
+            "Enviar reporte"
+          )}
         </button>
       </form>
     </div>

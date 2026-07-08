@@ -1,21 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
-interface Report {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  urgency: string;
-  status: string;
-  latitude: number;
-  longitude: number;
-  address: string;
-  sector: string;
-  authorName: string;
-  createdAt: string;
-  confirmations: number;
-}
+import { useReportDetail, useConfirmReport } from "../hooks/useRadarApi";
+import SkeletonCard from "../components/SkeletonCard";
+import EmptyState from "../components/EmptyState";
+import Lightbox from "../components/Lightbox";
 
 const STATUS_CHIP: Record<string, string> = {
   pending: "chip-precaución",
@@ -62,48 +50,66 @@ const CATEGORY_EMOJI: Record<string, string> = {
 export default function ReportDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    setError(null);
+  const {
+    data: report,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useReportDetail(id);
 
-    fetch(`/api/radar/reports/${id}`)
-      .then(r => {
-        if (!r.ok) throw new Error("Reporte no encontrado");
-        return r.json();
-      })
-      .then(setReport)
-      .catch(() => setError("No se pudo cargar el reporte."))
-      .finally(() => setLoading(false));
-  }, [id]);
+  const confirmMutation = useConfirmReport();
 
-  if (loading) {
+  const handleConfirm = () => {
+    if (!report || confirmMutation.isPending) return;
+    confirmMutation.mutate(report.id, {
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  };
+
+  // --------------- Loading ---------------
+  if (isLoading) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, color: "var(--md-muted)", padding: "60px 0" }}>
-        <div className="animate-spin h-6 w-6 border-2 border-[var(--md-primary)] border-t-transparent rounded-full" />
-        <span style={{ fontSize: 14 }}>Cargando reporte...</span>
+      <div>
+        <button
+          className="btn-secondary"
+          style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16, padding: "8px 14px", fontSize: 13 }}
+          onClick={() => navigate(-1)}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5" />
+            <path d="m12 19-7-7 7-7" />
+          </svg>
+          Volver
+        </button>
+        <SkeletonCard count={1} variant="card" />
+        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+          <SkeletonCard count={3} variant="list" />
+        </div>
       </div>
     );
   }
 
-  if (error || !report) {
+  // --------------- Error ---------------
+  if (isError || !report) {
     return (
       <div style={{ textAlign: "center", padding: "40px 0" }}>
-        <div className="card" style={{ padding: 32, display: "inline-block" }}>
-          <p style={{ margin: "0 0 8px", fontSize: 15, color: "var(--md-danger)", fontWeight: 600 }}>
-            {error || "Reporte no encontrado"}
-          </p>
-          <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--md-muted)" }}>
-            El reporte que buscas no existe o fue eliminado.
-          </p>
-          <button className="btn-secondary" onClick={() => navigate(-1)}>
-            Volver
-          </button>
-        </div>
+        <EmptyState
+          icon={
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          }
+          title={error instanceof Error ? error.message : "Reporte no encontrado"}
+          message="El reporte que buscas no existe o fue eliminado."
+          action={{ label: "Volver", onClick: () => navigate(-1) }}
+        />
       </div>
     );
   }
@@ -115,17 +121,53 @@ export default function ReportDetail() {
 
   return (
     <div>
+      {/* ---------- Lightbox ---------- */}
+      {lightboxOpen && report.imageUrl && (
+        <Lightbox
+          images={[report.imageUrl]}
+          initialIndex={0}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
+
+      {/* ---------- Back button ---------- */}
       <button
         className="btn-secondary"
         style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16, padding: "8px 14px", fontSize: 13 }}
         onClick={() => navigate(-1)}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M19 12H5" /><path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+          <path d="m12 19-7-7 7-7" />
         </svg>
         Volver
       </button>
 
+      {/* ---------- Image hero ---------- */}
+      {report.imageUrl && (
+        <div
+          className="card-hover"
+          style={{
+            overflow: "hidden",
+            marginBottom: 14,
+            cursor: "pointer",
+          }}
+          onClick={() => setLightboxOpen(true)}
+        >
+          <img
+            src={report.imageUrl}
+            alt={report.title}
+            style={{
+              width: "100%",
+              height: 200,
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+        </div>
+      )}
+
+      {/* ---------- Report card ---------- */}
       <div className="card" style={{ padding: 16, marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -144,6 +186,7 @@ export default function ReportDetail() {
           </span>
         </div>
 
+        {/* Description */}
         {report.description && (
           <div style={{ marginBottom: 16 }}>
             <p style={{ margin: 0, fontSize: 13, color: "var(--md-muted)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
@@ -152,6 +195,7 @@ export default function ReportDetail() {
           </div>
         )}
 
+        {/* Info rows */}
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
           {report.address && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--md-muted)" }}>
@@ -166,7 +210,8 @@ export default function ReportDetail() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--md-muted)" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
             {new Date(report.createdAt).toLocaleDateString("es-PE", {
@@ -188,14 +233,59 @@ export default function ReportDetail() {
           )}
         </div>
 
+        {/* Confirmations */}
         {report.confirmations > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", background: "var(--md-primary-50)", borderRadius: 8, fontSize: 13, color: "var(--md-primary)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", background: "var(--md-primary-50)", borderRadius: 8, fontSize: 13, color: "var(--md-primary)", marginBottom: 12 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
             {report.confirmations} vecino{report.confirmations !== 1 ? "s" : ""} confirm{report.confirmations !== 1 ? "aron" : "ó"} este reporte
           </div>
+        )}
+
+        {/* Confirm button */}
+        <button
+          className="btn-primary"
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            transition: "transform 0.1s",
+          }}
+          onClick={handleConfirm}
+          disabled={confirmMutation.isPending}
+        >
+          {confirmMutation.isPending ? (
+            <>
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+              Confirmando...
+            </>
+          ) : (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Yo también vi esto
+            </>
+          )}
+        </button>
+
+        {confirmMutation.isSuccess && (
+          <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--md-success)", textAlign: "center" }}>
+            Gracias por confirmar. Tu reporte ayuda a la comunidad.
+          </p>
+        )}
+
+        {confirmMutation.isError && (
+          <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--md-danger)", textAlign: "center" }}>
+            {(confirmMutation.error as any)?.message === "API error: 409"
+              ? "Ya confirmaste este reporte."
+              : "No se pudo confirmar. Intenta de nuevo."}
+          </p>
         )}
       </div>
     </div>

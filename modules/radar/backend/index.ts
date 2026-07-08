@@ -14,6 +14,7 @@ import categoriesRouter from "./routes/categories";
 import statsRouter from "./routes/stats";
 import storageRouter from "./routes/storage";
 import tenantRouter from "./routes/tenant";
+import notificationsRouter from "./routes/notifications";
 
 const router: Router = createRouter();
 
@@ -31,6 +32,7 @@ router.use("/categories", categoriesRouter);
 router.use("/stats", statsRouter);
 router.use("/storage", storageRouter);
 router.use("/tenant", tenantRouter);
+router.use("/notifications", notificationsRouter);
 
 /**
  * Inicializa el módulo radar en la aplicación Express.
